@@ -1,0 +1,12 @@
+
+.App {
+  width: 100vw;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+}
+input {
+  margin: 10px;
+}

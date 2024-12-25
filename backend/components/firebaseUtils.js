@@ -2,14 +2,19 @@ import  admin  from 'firebase-admin';
 import fs from 'fs';
 import { v4 } from 'uuid';
 import ffmpeg from 'fluent-ffmpeg';
-// import serviceAccount  from "../Data/serviceAccountKey.json"  assert { type: 'json' };
 import { readFileSync } from "fs";
-const serviceAccount = JSON.parse(readFileSync("./Data/clscountKey.json"));
 import { createRecord } from "./firebaseDB.js";
 import { getRecentApprovedVideos } from "./approvedVideos.js";
 import { title } from 'process';
+import dotenv from 'dotenv';
 
 const outputThmbnailPath = `${process.cwd()}/video/thumbnail${v4()}.jpg`;
+
+
+dotenv.config(); // Load the environment variables from the .env file
+
+const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
+
 let outputVideoFile = '';
 
 // Initialize Firebase Admin SDK

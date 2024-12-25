@@ -3,5 +3,4 @@
 /backend/Data/serviceAccountKey.json
 /frontend/package-lock.json
 /frontend/yarn.lock
-/backend/.env
-/frontend/.env
+**/.env

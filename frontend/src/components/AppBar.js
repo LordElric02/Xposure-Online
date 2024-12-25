@@ -28,7 +28,7 @@ const MyAppBar = () => {
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Watch Video
+          Xpososure Online
         </Typography>
         <IconButton color="inherit">
           <NotificationsIcon />

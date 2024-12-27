@@ -1,18 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import  { ThumbnailGallery } from './ThumnnailGallery';
+import { ThumbnailGalleryForUser } from './ThumnnailGalleryForUser';
 
-const VideoPlayer  =({ refreshVideos }) =>{
+const VideoPlayerUser  =({ refreshVideos, user }) =>{
   const [videos, setVideoList] = useState([]); 
+  const [userVideos, setUserVideoList] = useState([]); 
   const [currentVideo, setCurrentVideo] = useState(null);
-  const videoRef = useRef(null); // Crea
+  const [user, setUser] = useState(null);
+
+  console.log(`user check: ${user}`); 
 
   useEffect(() => {
     const fetchVideos = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/videos');
         const tempArray = JSON.parse(response.data);
-        setCurrentVideo(tempArray[1].videoUrl);
         setVideoList(tempArray);  
  
       } catch (err) {   
@@ -28,26 +31,16 @@ const VideoPlayer  =({ refreshVideos }) =>{
   }, [refreshVideos]);
 
 
-  // useEffect(() => {
-  //   if (videoRef.current && currentVideo) {
-  //     videoRef.current.play(); // Trigger play on the video element
-  //   }
-  // }, [currentVideo]); // Run this effect when currentVideo changes
-
   const handleThumbnailClick = (videoUrl) => {
     setCurrentVideo(videoUrl);
   };
 
   return (
     <div>
-      <video 
-        ref={videoRef}
-        controls 
-        style={styles.video} 
-        src={currentVideo} 
-        autoPlay
-       />
-        <ThumbnailGallery videos={videos} handleThumbnailClick={handleThumbnailClick} />
+      <video controls style={styles.video} src={currentVideo} autoPlay/>
+      <h2>Your Videos</h2>
+      <ThumbnailGallery videos={videos} handleThumbnailClick={handleThumbnailClick} />
+      <ThumbnailGalleryForUser videos={userVideos} handleThumbnailClick={handleThumbnailClick} />
     </div>
   );
 }
@@ -80,4 +73,4 @@ const styles = {
   },
 };
 
-export default VideoPlayer;
+export default VideoPlayerUser;

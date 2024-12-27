@@ -12,7 +12,7 @@ export const FileUpload = ({ onUploadComplete, user }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('info');
-  const [uploading, setUploading] = useState(false); // New state for uploading
+  const [uploading, setUploading] = useState(false);
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
@@ -27,16 +27,13 @@ export const FileUpload = ({ onUploadComplete, user }) => {
     }
 
     const videosListRef = ref(storage, `videos/uploadvideos_${v4()}`);
-    const thumbnailEndpoint = ''; // This should be defined after you create the URL.
+    const thumbnailEndpoint = '';
 
     try {
-      setUploading(true); // Start showing the uploading toast
+      setUploading(true);
 
-      // Start the upload process
       const snapshot = await uploadBytes(videosListRef, file);
       const url = await getDownloadURL(snapshot.ref);
-
-      // Generate the file name and thumbnail endpoint
       const fileName = firebaseName(url);
       const encodedUrl = encodeURIComponent(url);
       const usertoken = user.stsTokenManager.accessToken;
@@ -44,10 +41,11 @@ export const FileUpload = ({ onUploadComplete, user }) => {
       const requestBody = {
         usertoken: usertoken
       };
+
       try {
         const response = await axios.post(thumbnailEndpoint, requestBody, {
           headers: {
-            'Content-Type': 'application/json', // Ensure the content type is set
+            'Content-Type': 'application/json',
           },
         });
 
@@ -55,21 +53,16 @@ export const FileUpload = ({ onUploadComplete, user }) => {
         console.log(err);
       }    
 
-      // On success, update the snackbar message to "File uploaded successfully!"
       setSnackbarMessage('File uploaded successfully!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
-
-      // Optionally, you can call onUploadComplete here if needed
       onUploadComplete();
     } catch (error) {
-      // Handle errors from both upload and API call
-      
       setSnackbarMessage('Error uploading file.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     } finally {
-      setUploading(false); // Hide the uploading toast
+      setUploading(false);
     }
   };
 
@@ -78,34 +71,45 @@ export const FileUpload = ({ onUploadComplete, user }) => {
   };
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
       <Input type="file" onChange={handleFileChange} />
       <Button variant="contained" onClick={handleUpload}>
         Upload
       </Button>
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Change position to top center
       >
         <Alert 
           onClose={handleSnackbarClose} 
           severity={snackbarSeverity} 
-          sx={{ width: '100%' }}
+          sx={{ 
+            width: '100%', 
+            fontSize: '2rem', // Increase font size
+            padding: '16px', // Increase padding
+            textAlign: 'center', // Center text
+            position: 'absolute', // Use absolute positioning
+            top: '50%', // Center vertically
+            left: '50%', // Center horizontally
+            transform: 'translate(-50%, -50%)', // Adjust for centering
+            zIndex: 1300 // Make sure it's on top
+          }}
         >
           {snackbarMessage}
         </Alert>
       </Snackbar>
 
-      {/* Uploading Toast */}
       <Snackbar
         open={uploading}
         anchorOrigin={{ vertical: 'center', horizontal: 'center' }}
-        autoHideDuration={null} // Keep it open until manually closed
+        autoHideDuration={null}
       >
         <Alert 
           severity="info" 
-          sx={{ backgroundColor: 'red', color: 'white', width: 'auto' }}
+          sx={{ backgroundColor: 'red', color: 'white', width: 'auto', fontSize: '2rem', padding: '16px', textAlign: 'center' }}
         >
           Uploading video...
         </Alert>

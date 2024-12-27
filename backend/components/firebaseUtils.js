@@ -3,7 +3,7 @@ import { v4 } from 'uuid';
 import ffmpeg from 'fluent-ffmpeg';
 import { readFileSync } from "fs";
 import { createRecord } from "./firebaseDB.js";
-import { getRecentApprovedVideos } from "./approvedVideos.js";
+import { getRecentApprovedVideos, getRecentUserVideos } from "./approvedVideos.js";
 import { title } from 'process';
 import dotenv from 'dotenv';
 
@@ -122,4 +122,9 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user, admin) => 
   export const recordecentApprovedVideos = async (admin) => {
         return getRecentApprovedVideos(admin);
   }
+
+  export const userVideos = async (admin, user) => {
+    return getRecentUserVideos(admin, user);
+}
+
 

@@ -9,9 +9,21 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { onAuthStateChanged } from 'firebase/auth';
+import { useState, useEffect } from 'react';
+import { auth } from './firebase';
 
 const MyAppBar = () => {
+  const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
+
+   useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setUser(user);
+      });
+  
+      return () => unsubscribe();
+    }, []);
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -48,6 +60,8 @@ const MyAppBar = () => {
           <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
           <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
           <MenuItem onClick={handleMenuClose}>Animations</MenuItem>
+          {user && <MenuItem onClick={handleMenuClose}>Manage Printint services</MenuItem>}
+          <MenuItem onClick={handleMenuClose}>Games</MenuItem>
           <MenuItem onClick={handleMenuClose}>
               Movie & TV
               <Menu>

@@ -1,7 +1,7 @@
 import Router from 'express';
 import { v4 } from 'uuid';
 import admin from 'firebase-admin';
-import { downloadFile, recordecentApprovedVideos } from '../components/firebaseUtils.js';
+import { downloadFile, recordecentApprovedVideos, userVideos } from '../components/firebaseUtils.js';
 import verifyToken from '../middlewares/auth.js';
 import dotenv from 'dotenv';
 
@@ -59,6 +59,16 @@ router.post('/GenerateThumbnail', async (req, res) => {
       message: 'Error generating thumbnail',
     });
   }
+});
+
+router.get('/uservideos', async (req, res) => {
+  const emsil = req.query.email; 
+  // Set the Content-Type header to application/json
+  res.setHeader('Content-Type', 'application/json');
+  const videos = await userVideos(admin, emsil);
+  const jsonvideos = JSON.stringify(videos);
+
+  res.json(jsonvideos);
 });
 
 export default router;

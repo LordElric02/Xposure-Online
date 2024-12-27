@@ -1,4 +1,3 @@
-import  admin  from 'firebase-admin';
 import fs from 'fs';
 import { v4 } from 'uuid';
 import ffmpeg from 'fluent-ffmpeg';
@@ -17,15 +16,8 @@ const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
 
 let outputVideoFile = '';
 
-// Initialize Firebase Admin SDK
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  storageBucket: 'watch-video-45073.firebasestorage.app',
-  databaseURL: 'https://watch-video-45073-default-rtdb.firebaseio.com'
-});
-
 // Function to download file from Firebase Storage
-export const downloadFile = async (filePath, destination, fileUrl) => {
+export const downloadFile = async (filePath, destination, fileUrl, user, admin) => {
   outputVideoFile = destination;
   const bucket = admin.storage().bucket();
   const file = bucket.file(filePath);
@@ -40,7 +32,8 @@ export const downloadFile = async (filePath, destination, fileUrl) => {
       })
       .on('end', async () => {
         try {
-          await createThumbnail(destination, fileUrl); // Await the thumbnail creation
+          console.log(`preparing to creae thumnail for user ${user} `);
+          await createThumbnail(destination, fileUrl, user, admin); // Await the thumbnail creation
           resolve(); // Resolve the promise when thumbnail creation is complete
         } catch (error) {
           reject(error); // Reject the promise if thumbnail creation fails
@@ -50,7 +43,7 @@ export const downloadFile = async (filePath, destination, fileUrl) => {
   });
 };
 
-export const createThumbnail = async (outputVideoPath, fileUrl) => {    
+export const createThumbnail = async (outputVideoPath, fileUrl, user, admin) => {    
   const bucket = admin.storage().bucket();
   const thumbnailTime = 5;
 
@@ -63,7 +56,8 @@ export const createThumbnail = async (outputVideoPath, fileUrl) => {
           .output(outputThmbnailPath)
           .on("end", async () => {
               try {
-                  await uploadThumbnail(outputThmbnailPath, fileUrl); // Await the upload
+                console.log(`preparing to upload thumbnail for user ${user}`);
+                  await uploadThumbnail(outputThmbnailPath, fileUrl, user, admin); // Await the upload
                   resolve(); // Resolve the promise after upload is complete
               } catch (error) {
                   reject(error); // Reject the promise if upload fails
@@ -81,7 +75,7 @@ export const createThumbnail = async (outputVideoPath, fileUrl) => {
   };
 }
 
-  export const uploadThumbnail = async (thumbnailPath, fileUrl) => {
+  export const uploadThumbnail = async (thumbnailPath, fileUrl, user,admin) => {
 
     const bucket = admin.storage().bucket();
     const thumbnailPrefix = 'thumbnails/';
@@ -93,8 +87,8 @@ export const createThumbnail = async (outputVideoPath, fileUrl) => {
       contentType: 'image/jpeg'
 
     });
-    
-    await saveToDatabase(fileUrl, generateThumbnailUrl(thumbnailSuffix));
+    console.log(`preparing to save to database for user ${user}`);
+    await saveToDatabase(fileUrl, generateThumbnailUrl(thumbnailSuffix), user, admin);
 
     // Delete the temporary files
     fs.unlinkSync(outputVideoFile);
@@ -107,7 +101,7 @@ export const createThumbnail = async (outputVideoPath, fileUrl) => {
     return thumbnailUrl;
   }
 
-  const saveToDatabase = async (videoUrl, thumbnail) => {
+  const saveToDatabase = async (videoUrl, thumbnail, user, admin) => {
     const videoPath = `videos/video_${v4()}`; // Define the path in the database
     const videoId = v4();
     const videoData = {
@@ -117,14 +111,15 @@ export const createThumbnail = async (outputVideoPath, fileUrl) => {
       thumbnailUrl: thumbnail,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      createdBy:'system',
+      createdBy:user.email,
       group:'Group A',
       approved: true  
     };    
+    console.log(`preparing to save tocreate record for user ${user}`);
     await createRecord(admin, videoPath, videoData);
   }
 
-  export const recordecentApprovedVideos = async () => {
+  export const recordecentApprovedVideos = async (admin) => {
         return getRecentApprovedVideos(admin);
   }
 

@@ -50,7 +50,7 @@ function Home() {
             </VideoPlayerContainer>
             {user && (
               <UploadSection item xs={4}>
-                <FileUpload onUploadComplete={handleFileUploadComplete} />
+                <FileUpload onUploadComplete={handleFileUploadComplete} user={user} />
               </UploadSection>
             )}
           </Grid2>

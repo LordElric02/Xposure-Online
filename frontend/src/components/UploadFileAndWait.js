@@ -7,7 +7,7 @@ import { storage } from './firebase';
 import { v4 } from 'uuid';
 import { firebaseName } from '../Utils/fileNameExtractor';
 
-export const FileUpload = ({ onUploadComplete }) => {
+export const FileUpload = ({ onUploadComplete, user }) => {
   const [file, setFile] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -39,15 +39,21 @@ export const FileUpload = ({ onUploadComplete }) => {
       // Generate the file name and thumbnail endpoint
       const fileName = firebaseName(url);
       const encodedUrl = encodeURIComponent(url);
+      const usertoken = user.stsTokenManager.accessToken;
       const thumbnailEndpoint = `http://localhost:5000/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}`;
+      const requestBody = {
+        usertoken: usertoken
+      };
+      try {
+        const response = await axios.post(thumbnailEndpoint, requestBody, {
+          headers: {
+            'Content-Type': 'application/json', // Ensure the content type is set
+          },
+        });
 
-      // Set the snackbar message to "Processing..." before making the API call
-      // setSnackbarMessage('Processing...');
-      // setSnackbarSeverity('info');
-      // setSnackbarOpen(true);
-
-      // Make the API call and wait for it to complete
-      await axios.get(thumbnailEndpoint);
+      } catch (err) {
+        console.log(err);
+      }    
 
       // On success, update the snackbar message to "File uploaded successfully!"
       setSnackbarMessage('File uploaded successfully!');
@@ -58,6 +64,7 @@ export const FileUpload = ({ onUploadComplete }) => {
       onUploadComplete();
     } catch (error) {
       // Handle errors from both upload and API call
+      
       setSnackbarMessage('Error uploading file.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);

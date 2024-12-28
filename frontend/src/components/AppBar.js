@@ -66,19 +66,23 @@ const MyAppBar = () => {
           <AccountCircle />
         </IconButton>
         <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
-          <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-          <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Animations</MenuItem>
-          {user && <MenuItem onClick={handleMenuClose}>Manage Printint services</MenuItem>}
-          {user && <MenuItem onClick={() => handleNavigation('/myvideos')}>My Videos</MenuItem>}
-          <MenuItem onClick={handleMenuClose}>Games</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Music</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
-        </Menu>
+     anchorEl={anchorEl}
+     open={Boolean(anchorEl)}
+     onClose={handleMenuClose}
+   >
+     <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+     <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
+     <MenuItem onClick={handleMenuClose}>Animations</MenuItem>
+     {user && <MenuItem onClick={handleMenuClose}>Manage Printing services</MenuItem>}
+     {user && (
+       <MenuItem onClick={() => handleNavigation('/myvideos')}>
+         My Videos
+       </MenuItem>
+     )}
+     <MenuItem onClick={handleMenuClose}>Games</MenuItem>
+     <MenuItem onClick={handleMenuClose}>Music</MenuItem>
+     <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+   </Menu>
       </Toolbar>
     </AppBar>
   );

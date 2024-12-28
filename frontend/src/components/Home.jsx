@@ -1,4 +1,4 @@
-import { RootContainer, StyledPaper, Header, UploadSection, VideoPlayerContainer } from './styledaApi'; // Adjust the path as necessary
+import { StyledPaper, Header, UploadSection, VideoPlayerContainer } from './styledaApi'; // Adjust the path as necessary
 import '../App.css';
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
@@ -11,7 +11,6 @@ import { Auth } from './Auth';
 import {  onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import'fontsource-roboto';
-import MyAppBar from './AppBar';
 
 
 function Home() {
@@ -31,8 +30,7 @@ function Home() {
   };
 
   return (
-    <RootContainer>
-      <MyAppBar />
+   <>
       <StyledPaper>
         <Header variant="h2">
           {user ? 'Welcome Back!' : 'Please Log In'}
@@ -56,7 +54,7 @@ function Home() {
           </Grid2>
         </Grid2>
       </StyledPaper>
-    </RootContainer>
+    </>
   );
 }  
 

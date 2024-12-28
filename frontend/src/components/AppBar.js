@@ -12,10 +12,12 @@ import MenuItem from '@mui/material/MenuItem';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useState, useEffect } from 'react';
 import { auth } from './firebase';
+import { useNavigate } from 'react-router-dom';
 
 const MyAppBar = () => {
   const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const navigate = useNavigate();
 
    useEffect(() => {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -28,6 +30,17 @@ const MyAppBar = () => {
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+
+  const handleNavigation = (path) => {
+    handleClose(); // Close the menu
+    navigate(path); // Navigate to the specified route
+  };
+
 
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -61,15 +74,8 @@ const MyAppBar = () => {
           <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
           <MenuItem onClick={handleMenuClose}>Animations</MenuItem>
           {user && <MenuItem onClick={handleMenuClose}>Manage Printint services</MenuItem>}
+          {user && <MenuItem onClick={() => handleNavigation('/myvideos')}>My Videos</MenuItem>}
           <MenuItem onClick={handleMenuClose}>Games</MenuItem>
-          <MenuItem onClick={handleMenuClose}>
-              Movie & TV
-              <Menu>
-                <MenuItem onClick={handleMenuClose}>Movies</MenuItem>
-                <MenuItem onClick={handleMenuClose}>V Series</MenuItem>
-                <MenuItem onClick={handleMenuClose}>Video on demand</MenuItem>
-              </Menu>
-           </MenuItem>
           <MenuItem onClick={handleMenuClose}>Music</MenuItem>
           <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
         </Menu>

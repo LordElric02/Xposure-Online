@@ -2,7 +2,7 @@ import React from 'react'
 
 const MyVideos = () => {
   return (
-    <div>sfsdafasdfasdfasdfjsdlfsdk</div>
+    <div>MyVideos</div>
   )
 }
 

@@ -9,6 +9,7 @@ import ProtectedRoute from './components/ProtectedRouteV2';
 import About from './components/About';
 import Layout from './components/Layout';
 import MyVideos from './components/MyVideos';
+import MyAccount from './components/MyAccount';
 
 
 const MyRoutes = () => {
@@ -18,7 +19,8 @@ const MyRoutes = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
-        <Route path="/myvideos" element={MyVideos} /> 
+        <Route path="/myvideos" element={<MyVideos /> } /> 
+        <Route path="/myaccount" element={<MyAccount  /> } /> 
         <Route path="/About" element={<About />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

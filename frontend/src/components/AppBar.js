@@ -70,9 +70,10 @@ const MyAppBar = () => {
      open={Boolean(anchorEl)}
      onClose={handleMenuClose}
    >
-     <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-     <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
-     <MenuItem onClick={handleMenuClose}>Animations</MenuItem>
+      <MenuItem onClick={() => handleNavigation('/')}>
+         Home
+       </MenuItem>
+      <MenuItem onClick={handleMenuClose}>Animations</MenuItem>
      {user && <MenuItem onClick={handleMenuClose}>Manage Printing services</MenuItem>}
      {user && (
        <MenuItem onClick={() => handleNavigation('/myvideos')}>
@@ -81,6 +82,11 @@ const MyAppBar = () => {
      )}
      <MenuItem onClick={handleMenuClose}>Games</MenuItem>
      <MenuItem onClick={handleMenuClose}>Music</MenuItem>
+     {user && (
+       <MenuItem onClick={() => handleNavigation('/myaccount')}>
+         My Account
+       </MenuItem>
+     )}
      <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
    </Menu>
       </Toolbar>

@@ -46,11 +46,6 @@ function Home() {
             <VideoPlayerContainer item xs={8}>
               <VideoPlayer refreshVideos={refreshVideos} />
             </VideoPlayerContainer>
-            {user && (
-              <UploadSection item xs={4}>
-                <FileUpload onUploadComplete={handleFileUploadComplete} user={user} />
-              </UploadSection>
-            )}
           </Grid2>
         </Grid2>
       </StyledPaper>

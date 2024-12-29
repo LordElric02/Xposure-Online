@@ -73,8 +73,14 @@ const MyAppBar = () => {
       <MenuItem onClick={() => handleNavigation('/')}>
          Home
        </MenuItem>
-      <MenuItem onClick={handleMenuClose}>Animations</MenuItem>
-     {user && <MenuItem onClick={handleMenuClose}>Manage Printing services</MenuItem>}
+       <MenuItem onClick={() => handleNavigation('/animations')}>
+         Animations
+       </MenuItem>
+     {user && 
+         <MenuItem onClick={() => handleNavigation('/printingservices')}>
+         Printing Servides
+       </MenuItem>
+      }
      {user && (
        <MenuItem onClick={() => handleNavigation('/myvideos')}>
          My Videos

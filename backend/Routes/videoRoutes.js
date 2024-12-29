@@ -26,6 +26,7 @@ router.get('/', async (req, res) => {
   res.json(jsonvideos);
 });
 
+
 // Middleware to verify token
 router.use(async (req, res, next) => {
   try {
@@ -61,7 +62,7 @@ router.post('/GenerateThumbnail', async (req, res) => {
   }
 });
 
-router.get('/uservideos', async (req, res) => {
+router.post('/uservideos', async (req, res) => {
   const emsil = req.query.email; 
   // Set the Content-Type header to application/json
   res.setHeader('Content-Type', 'application/json');

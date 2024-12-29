@@ -34,7 +34,7 @@ export const getRecentApprovedVideos = async (admin) => {
 };
 
 
-export const getRecentUserVideos = async (admin, user) => {
+export const getRecentUserVideos = async (admin, email) => {
     const db = admin.database();  
     try {
         const videosRef = db.ref('videos'); // Assuming your videos are stored under 'videos'

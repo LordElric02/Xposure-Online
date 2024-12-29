@@ -2,7 +2,6 @@ import { StyledPaper, Header, UploadSection, VideoPlayerContainer } from './styl
 import '../App.css';
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
-import VideoPlayer from './VideoPlayer';
 import { Grid2 } from '@mui/material';
 import {FileUpload } from './UploadFileAndWait';
 import SearchVideos from './SearchVideos';
@@ -11,6 +10,7 @@ import { Auth } from './Auth';
 import {  onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import'fontsource-roboto';
+import UserVideos from './UserVideos';
 
 const MyVideos = () => {
    const [user, setUser] = useState(null);
@@ -40,7 +40,7 @@ const MyVideos = () => {
            </Grid2>
            <Grid2 container item xs={12} spacing={2} alignItems="flex-start">
              <VideoPlayerContainer item xs={8}>
-               <VideoPlayer refreshVideos={refreshVideos} />
+               <UserVideos refreshVideos={refreshVideos} />
              </VideoPlayerContainer>
              {user && (
                <UploadSection item xs={4}>

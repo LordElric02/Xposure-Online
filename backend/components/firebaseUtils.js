@@ -123,8 +123,8 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user, admin) => 
         return getRecentApprovedVideos(admin);
   }
 
-  export const userVideos = async (admin, user) => {
-    return getRecentUserVideos(admin, user);
+  export const userVideos = async (admin, email) => {
+    return getRecentUserVideos(admin, email);
 }
 
 

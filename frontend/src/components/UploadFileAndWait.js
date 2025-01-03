@@ -9,6 +9,8 @@ import { firebaseName } from '../Utils/fileNameExtractor';
 
 export const FileUpload = ({ onUploadComplete, user }) => {
   const [file, setFile] = useState(null);
+  const[videoTitle, setVideoTitle] = useState('');
+  const[videGroup, setVideoGroup] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('info');
@@ -72,6 +74,32 @@ export const FileUpload = ({ onUploadComplete, user }) => {
 
   return (
     <div style={{ position: 'relative' }}>
+     <div>
+  <label htmlFor="vtitle" style={{ display: 'block', marginBottom: '4px' }}>
+    Video Title
+  </label>
+  <Input 
+    id="vtitle"
+    type="text" 
+    placeholder="Video Title" 
+    value={videoTitle} 
+    onChange={(e) => setVideoTitle(e.target.value)} 
+    style={{ marginBottom: '8px', width: '100%' }} 
+  />
+  
+  <label htmlFor="vgroup" style={{ display: 'block', marginBottom: '4px' }}>
+    Video Group
+  </label>
+  <Input 
+    id="vgroup"
+    type="text" 
+    placeholder="Video Group" 
+    value={videGroup} 
+    onChange={(e) => setVideoGroup(e.target.value)} 
+    style={{ marginBottom: '8px', width: '100%' }} 
+  />
+</div>
+
       <Input type="file" onChange={handleFileChange} />
       <Button variant="contained" onClick={handleUpload}>
         Upload

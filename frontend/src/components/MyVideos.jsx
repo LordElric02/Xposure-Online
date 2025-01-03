@@ -14,7 +14,7 @@ import UserVideos from './UserVideos';
 
 const MyVideos = () => {
    const [user, setUser] = useState(null);
-    const [refreshVideos, setRefreshVideos] = useState(false);
+   const [refreshVideos, setRefreshVideos] = useState(false);
   
     useEffect(() => {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -30,26 +30,32 @@ const MyVideos = () => {
   
   return (
     <>
-       <StyledPaper>
-         <Header variant="h2">
-            My Videos
-         </Header>
-         <Grid2 container spacing={2}>
-           <Grid2 item xs={12}>
-             <SearchVideos />
-           </Grid2>
-           <Grid2 container item xs={12} spacing={2} alignItems="flex-start">
-             <VideoPlayerContainer item xs={8}>
-               <UserVideos refreshVideos={refreshVideos} />
-             </VideoPlayerContainer>
-             {user && (
-               <UploadSection item xs={4}>
-                 <FileUpload onUploadComplete={handleFileUploadComplete} user={user} />
-               </UploadSection>
-             )}
-           </Grid2>
-         </Grid2>
-       </StyledPaper>
+      <StyledPaper>
+  <Header variant="h2">
+    My Videos
+  </Header>
+  <Grid2 container spacing={2}>
+  <Grid2 container item xs={12} alignItems="flex-start">
+  {user && (
+    <Grid2 item xs={4}>
+      <UploadSection>
+        <FileUpload onUploadComplete={handleFileUploadComplete} user={user} />
+      </UploadSection>
+    </Grid2>
+  )}
+  <Grid2 item xs={8} alignItems="flex-start">
+    <SearchVideos />
+  </Grid2>
+</Grid2>
+
+    <Grid2 container item xs={12} spacing={2} alignItems="flex-start">
+      <VideoPlayerContainer item xs={8}>
+        <UserVideos refreshVideos={refreshVideos} />
+      </VideoPlayerContainer>
+    </Grid2>
+  </Grid2>
+</StyledPaper>
+
      </>
   )
 }

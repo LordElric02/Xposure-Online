@@ -33,12 +33,9 @@ function Home() {
    <>
       <StyledPaper>
         <Header variant="h2">
-          {user ? 'Welcome Back!' : 'Please Log In'}
+          {user ? 'Welcome Back!' : ''}
         </Header>
         <Grid2 container spacing={2}>
-          <Grid2 item xs={12}>
-            <Auth />
-          </Grid2>
           <Grid2 item xs={12}>
             <SearchVideos />
           </Grid2>

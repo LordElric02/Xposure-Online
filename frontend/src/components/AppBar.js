@@ -94,7 +94,7 @@ const MyAppBar = () => {
        </MenuItem>
      )}
      {user ? (
-       <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+       <MenuItem onClick={() => handleNavigation('/login')}>Logout</MenuItem>
      ) : (
        <MenuItem onClick={() => handleNavigation('/login')}>Login</MenuItem>
      )}

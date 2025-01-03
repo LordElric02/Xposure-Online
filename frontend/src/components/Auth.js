@@ -3,8 +3,10 @@ import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, on
 import { Button, TextField, Typography, Container } from '@mui/material';
 import { auth } from './firebase';
 import { useAuth} from './AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export const Auth = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,6 +26,7 @@ export const Auth = () => {
     try {
         const userData = await signInWithPopup(auth, provider);
         login(userData);
+        navigate('/');
     } catch (error) {
       console.error("Error during Google sign-in:", error);
     }

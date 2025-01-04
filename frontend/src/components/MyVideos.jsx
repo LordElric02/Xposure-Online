@@ -47,12 +47,12 @@ const MyVideos = () => {
     <SearchVideos />
   </Grid2>
 </Grid2>
-
+{user  && (
     <Grid2 container item xs={12} spacing={2} alignItems="flex-start">
       <VideoPlayerContainer item xs={8}>
-        <UserVideos refreshVideos={refreshVideos} />
+        <UserVideos refreshVideos={refreshVideos} user={user} />
       </VideoPlayerContainer>
-    </Grid2>
+    </Grid2>)}
   </Grid2>
 </StyledPaper>
 

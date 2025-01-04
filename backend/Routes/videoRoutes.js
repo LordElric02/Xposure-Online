@@ -41,12 +41,17 @@ router.post('/GenerateThumbnail', async (req, res) => {
   try {
     const filePath = req.query.filebaseName; 
     const fileUrl = req.query.fileUrl;
+    const videoTitle = req.query.videotitle;
+    const videoGroup = req.query.videogroup;  
 
     const outputVideoPath = `${process.cwd()}/Video/firebasevideo${v4()}.mp4`;
 
     console.log(`begining download for: ${req.user}`);
+    console.log(`video title: ${videoTitle}`);
+    console.log(`video group: ${videoGroup}`);
+
     // Download video
-    await downloadFile(filePath, outputVideoPath, fileUrl, req.user, admin); // Wait for the downloadFile to complete
+    await downloadFile(filePath, outputVideoPath, fileUrl, req.user,videoTitle, videoGroup, admin); // Wait for the downloadFile to complete
 
     // Here you could add additional processing for generating the thumbnail if needed
 
@@ -63,10 +68,11 @@ router.post('/GenerateThumbnail', async (req, res) => {
 });
 
 router.post('/uservideos', async (req, res) => {
-  const emsil = req.query.email; 
+  const email = req.query.email; 
+  console.log(`email passed into api: ${email}`);
   // Set the Content-Type header to application/json
   res.setHeader('Content-Type', 'application/json');
-  const videos = await userVideos(admin, emsil);
+  const videos = await userVideos(admin, email);
   const jsonvideos = JSON.stringify(videos);
 
   res.json(jsonvideos);

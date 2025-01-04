@@ -5,29 +5,38 @@ import { ThumbnailGalleryForUser } from './ThumnnailGalleryForUser';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';  
 
-const UserVideos  =({ refreshVideos }) =>{
-  const [user, setUser] = useState(null);
+const UserVideos  =({ refreshVideos, user }) =>{
   const [videos, setVideoList] = useState([]); 
   const [currentVideo, setCurrentVideo] = useState(null);
   const videoRef = useRef(null); // Crea
 
-   useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-          setUser(user);
-        });
-    
-        return () => unsubscribe();
-      }, []);
-    
-
+  console.log(`user check: ${user.email}`);
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        console.log(`check for user in user videos: ${user}`); 
-        const response = await axios.get('http://localhost:5000/api/videos');
-        const tempArray = JSON.parse(response.data);
-        setCurrentVideo(tempArray[1].videoUrl);
-        setVideoList(tempArray);  
+        const usertoken = user.stsTokenManager.accessToken;
+        const thumbnailEndpoint = `http://localhost:5000/api/videos/uservideos?email=${user.email}`;
+        const requestBody = {
+          usertoken: usertoken
+        };
+  
+        try {
+          const response = await axios.post(thumbnailEndpoint, requestBody, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          console.log(`check for user in user videos: ${user}`); 
+          // const response = await axios.get('http://localhost:5000/api/videos');
+          const tempArray = JSON.parse(response.data);
+          setCurrentVideo(tempArray[1].videoUrl);
+          setVideoList(tempArray);  
+  
+        } catch (err) {
+          console.log(err);
+        }    
+     
  
       } catch (err) {   
         console.log(err);

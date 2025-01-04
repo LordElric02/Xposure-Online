@@ -17,11 +17,13 @@ const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
 let outputVideoFile = '';
 
 // Function to download file from Firebase Storage
-export const downloadFile = async (filePath, destination, fileUrl, user, admin) => {
+export const downloadFile = async (filePath, destination, fileUrl, user,videoTitle,videoGroup, admin) => {
   outputVideoFile = destination;
   const bucket = admin.storage().bucket();
   const file = bucket.file(filePath);
-
+  console.log(`A`);
+  console.log(`videoTitle: ${videoTitle}`);
+  console.log(`videoGroup: ${videoGroup}`);
   return new Promise((resolve, reject) => {
     const destFileStream = fs.createWriteStream(destination);
 
@@ -33,7 +35,7 @@ export const downloadFile = async (filePath, destination, fileUrl, user, admin) 
       .on('end', async () => {
         try {
           console.log(`preparing to creae thumnail for user ${user} `);
-          await createThumbnail(destination, fileUrl, user, admin); // Await the thumbnail creation
+          await createThumbnail(destination, fileUrl, user,videoTitle,videoGroup, admin); // Await the thumbnail creation
           resolve(); // Resolve the promise when thumbnail creation is complete
         } catch (error) {
           reject(error); // Reject the promise if thumbnail creation fails
@@ -43,9 +45,13 @@ export const downloadFile = async (filePath, destination, fileUrl, user, admin) 
   });
 };
 
-export const createThumbnail = async (outputVideoPath, fileUrl, user, admin) => {    
+export const createThumbnail = async (outputVideoPath, fileUrl, user,videoTitle,videoGroup, admin) => {    
   const bucket = admin.storage().bucket();
   const thumbnailTime = 5;
+
+  console.log(`B`);
+  console.log(`videoTitle: ${videoTitle}`);
+  console.log(`videoGroup: ${videoGroup}`);
 
   // Process the file with FFmpeg
   await new Promise((resolve, reject) => {
@@ -57,7 +63,7 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user, admin) => 
           .on("end", async () => {
               try {
                 console.log(`preparing to upload thumbnail for user ${user}`);
-                  await uploadThumbnail(outputThmbnailPath, fileUrl, user, admin); // Await the upload
+                  await uploadThumbnail(outputThmbnailPath, fileUrl, user,videoTitle,videoGroup,  admin); // Await the upload
                   resolve(); // Resolve the promise after upload is complete
               } catch (error) {
                   reject(error); // Reject the promise if upload fails
@@ -75,8 +81,10 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user, admin) => 
   };
 }
 
-  export const uploadThumbnail = async (thumbnailPath, fileUrl, user,admin) => {
-
+  export const uploadThumbnail = async (thumbnailPath, fileUrl, user,videoTitle,videoGroup, admin) => {
+    console.log(`C`);
+    console.log(`videoTitle: ${videoTitle}`);
+    console.log(`videoGroup: ${videoGroup}`);
     const bucket = admin.storage().bucket();
     const thumbnailPrefix = 'thumbnails/';
     const thumbnailSuffix = `thumbnails_${v4()}`;
@@ -88,7 +96,7 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user, admin) => 
 
     });
     console.log(`preparing to save to database for user ${user}`);
-    await saveToDatabase(fileUrl, generateThumbnailUrl(thumbnailSuffix), user, admin);
+    await saveToDatabase(fileUrl, generateThumbnailUrl(thumbnailSuffix), user,videoTitle,videoGroup, admin);
 
     // Delete the temporary files
     fs.unlinkSync(outputVideoFile);
@@ -101,19 +109,23 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user, admin) => 
     return thumbnailUrl;
   }
 
-  const saveToDatabase = async (videoUrl, thumbnail, user, admin) => {
+  const saveToDatabase = async (videoUrl, thumbnail, user, videoTitle,videoGroup, admin) => {
     const videoPath = `videos/video_${v4()}`; // Define the path in the database
+    console.log(`D`);
+    console.log(`videoTitle: ${videoTitle}`);
+    console.log(`videoGroup: ${videoGroup}`);
+
     const videoId = v4();
     const videoData = {
       id: videoId,
       videoUrl: videoUrl,
-      title: `Video ${videoId}`,
+      title: videoTitle,
       thumbnailUrl: thumbnail,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       createdBy:user.email,
-      group:'Group A',
-      approved: true  
+      group: videoGroup,
+      approved: false  
     };    
     console.log(`preparing to save tocreate record for user ${user}`);
     await createRecord(admin, videoPath, videoData);

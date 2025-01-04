@@ -49,7 +49,7 @@ export const getRecentUserVideos = async (admin, email) => {
         const video = childSnapshot.val();
         const createdAt = new Date(video.CreatedAt).getTime(); // Ensure CreatedAt is a timestamp
 
-        if (video.approved === true && video.createdBy === email) {
+        if (video.createdBy === email) {
             videos.push({
             id: childSnapshot.key,
             thumbnailUrl: video.thumbnailUrl,

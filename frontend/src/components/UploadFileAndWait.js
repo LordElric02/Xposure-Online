@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Button, Snackbar, Alert } from '@mui/material';
+import { Button, Snackbar, Alert, Select } from '@mui/material';
+import { TextField } from '@mui/material';
+import { MenuItem } from '@mui/material';
 import Input from '@mui/material/Input';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from './firebase';
 import { v4 } from 'uuid';
 import { firebaseName } from '../Utils/fileNameExtractor';
 
+
 export const FileUpload = ({ onUploadComplete, user }) => {
   const [file, setFile] = useState(null);
   const[videoTitle, setVideoTitle] = useState('');
-  const[videGroup, setVideoGroup] = useState('');
+  const[videoGroup, setVideoGroup] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('info');
@@ -39,7 +42,7 @@ export const FileUpload = ({ onUploadComplete, user }) => {
       const fileName = firebaseName(url);
       const encodedUrl = encodeURIComponent(url);
       const usertoken = user.stsTokenManager.accessToken;
-      const thumbnailEndpoint = `http://localhost:5000/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}`;
+      const thumbnailEndpoint = `http://localhost:5000/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
       const requestBody = {
         usertoken: usertoken
       };
@@ -75,29 +78,42 @@ export const FileUpload = ({ onUploadComplete, user }) => {
   return (
     <div style={{ position: 'relative' }}>
      <div>
-  <label htmlFor="vtitle" style={{ display: 'block', marginBottom: '4px' }}>
-    Video Title
-  </label>
-  <Input 
-    id="vtitle"
-    type="text" 
-    placeholder="Video Title" 
-    value={videoTitle} 
-    onChange={(e) => setVideoTitle(e.target.value)} 
-    style={{ marginBottom: '8px', width: '100%' }} 
-  />
-  
-  <label htmlFor="vgroup" style={{ display: 'block', marginBottom: '4px' }}>
-    Video Group
-  </label>
-  <Input 
-    id="vgroup"
-    type="text" 
-    placeholder="Video Group" 
-    value={videGroup} 
-    onChange={(e) => setVideoGroup(e.target.value)} 
-    style={{ marginBottom: '8px', width: '100%' }} 
-  />
+     <label htmlFor="vtitle" style={{ display: 'block', marginBottom: '4px' }}>
+  Video Title
+</label>
+<Input 
+  id="vtitle"
+  type="text" 
+  placeholder="Video Title" 
+  value={videoTitle} 
+  onChange={(e) => setVideoTitle(e.target.value)} 
+  style={{ 
+    marginBottom: '8px', 
+    width: '100%', 
+    backgroundColor: 'white', 
+    color: 'black' // Changed to black for visibility
+  }} 
+/>
+
+<label htmlFor="vgroup" style={{ display: 'block', marginBottom: '4px' }}>
+          Video Group
+        </label>
+        <Select
+          id="vgroup"
+          value={videoGroup}
+          onChange={(e) => setVideoGroup(e.target.value)}
+          style={{ 
+            marginBottom: '8px', 
+            width: '100%', 
+            backgroundColor: 'white', 
+            color: 'black' 
+          }}
+        >
+          <MenuItem value="Emmy Winners">Emmy Winners</MenuItem>
+          <MenuItem value="Animations">Animations</MenuItem>
+          <MenuItem value="Games">Games</MenuItem>
+          <MenuItem value="Other">Other</MenuItem>
+        </Select>
 </div>
 
       <Input type="file" onChange={handleFileChange} />

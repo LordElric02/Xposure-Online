@@ -22,7 +22,8 @@ export const getRecentApprovedVideos = async (admin) => {
             thumbnailUrl: video.thumbnailUrl,
             videoUrl: video.videoUrl,
             title: video.title,
-            thumbnail: video.thumbnail
+            thumbnail: video.thumbnail,
+            group: video.group
             });
         }
         });

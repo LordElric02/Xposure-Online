@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import  { ThumbnailGallery } from './ThumnnailGallery';
-import { ThumbnailGalleryForUser } from './ThumnnailGalleryForUser';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './firebase';  
+import Typography from '@mui/material/Typography'; // Import Typography from Material-UI
 
 const UserVideos  =({ refreshVideos, user }) =>{
   const [videos, setVideoList] = useState([]); 
   const [currentVideo, setCurrentVideo] = useState(null);
+    const [videoTitle, setVideoTitle] = useState('');
   const videoRef = useRef(null); // Crea
 
   console.log(`user check: ${user.email}`);
@@ -31,6 +30,7 @@ const UserVideos  =({ refreshVideos, user }) =>{
           // const response = await axios.get('http://localhost:5000/api/videos');
           const tempArray = JSON.parse(response.data);
           setCurrentVideo(tempArray[1].videoUrl);
+          setVideoTitle(tempArray[1].title); // Assuming the title is in the response
           setVideoList(tempArray);  
   
         } catch (err) {
@@ -50,12 +50,14 @@ const UserVideos  =({ refreshVideos, user }) =>{
  
   }, [refreshVideos]);
 
-  const handleThumbnailClick = (videoUrl) => {
+  const handleThumbnailClick = (videoUrl, title) => {
     setCurrentVideo(videoUrl);
+    setVideoTitle(title); // Update the title when thumbnail is clicked
   };
 
   return (
     <div>
+      <Typography variant="h5" gutterBottom>{videoTitle}</Typography> {/* Use Material-UI Typography */}
       <video 
         ref={videoRef}
         controls 

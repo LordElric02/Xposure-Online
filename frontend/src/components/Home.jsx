@@ -33,7 +33,7 @@ function Home() {
    <>
       <StyledPaper>
         <Header variant="h2">
-          {user ? 'Welcome Back!' : ''}
+          {user ? `Welcome ${user.displayName}` : ''}
         </Header>
         <Grid2 container spacing={2}>
           <Grid2 item xs={12}>

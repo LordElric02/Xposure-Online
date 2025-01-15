@@ -67,7 +67,7 @@ export const getRecentUserVideos = async (admin, email) => {
     }
 };
 
-export const getRecentUserVideosbyGroup = async (admin, email,group) => {
+export const getRecentUserVideosByGroup = async (admin, email,group) => {
     const db = admin.database();  
     try {
         const videosRef = db.ref('videos'); // Assuming your videos are stored under 'videos'
@@ -120,7 +120,12 @@ export const getVideoGroups = async (admin, email) => {
         });
 
         groups.push({
-        id: 4,
+            id: 4,
+            group: 'Community'
+            });
+
+        groups.push({
+        id: 5,
         group: 'Other'
         });
 

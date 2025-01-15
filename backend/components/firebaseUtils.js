@@ -139,7 +139,7 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user,videoTitle,
     return getRecentUserVideos(admin, email);
   }
 
-  export const videosByUserGroups = async (admin, email,group) => {
+  export const groupVideos = async (admin, email,group) => {
     return getRecentUserVideosbyGroup(admin, email,group);
   }
 

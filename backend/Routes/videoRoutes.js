@@ -1,7 +1,7 @@
 import Router from 'express';
 import { v4 } from 'uuid';
 import admin from 'firebase-admin';
-import { downloadFile, groupList, recordecentApprovedVideos, userVideos } from '../components/firebaseUtils.js';
+import { downloadFile, groupList, recordecentApprovedVideos, groupVideos, userVideos } from '../components/firebaseUtils.js';
 import verifyToken from '../middlewares/auth.js';
 import dotenv from 'dotenv';
 
@@ -86,8 +86,8 @@ router.post('/uservideosByGroup', async (req, res) => {
   console.log(`group passed into api: ${group}`);
   // Set the Content-Type header to application/json
   res.setHeader('Content-Type', 'application/json');
-  const groupVideos = await videosByUserGroups(admin, email,group);
-  const jsonGroupVideos = JSON.stringify(groupVideos);
+  const videos = await groupVideos(admin,email,group);
+  const jsonGroupVideos = JSON.stringify(videos);
 
   res.json(jsonGroupVideos);
 });

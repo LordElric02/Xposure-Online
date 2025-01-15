@@ -1,23 +1,54 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Snackbar, Alert, Select } from '@mui/material';
+import { Button, Snackbar, Alert, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { TextField } from '@mui/material';
-import { MenuItem } from '@mui/material';
 import Input from '@mui/material/Input';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from './firebase';
 import { v4 } from 'uuid';
 import { firebaseName } from '../Utils/fileNameExtractor';
+import  VideoGroupSelect  from './videoGroupsSelect';
 
 
 export const FileUpload = ({ onUploadComplete, user }) => {
   const [file, setFile] = useState(null);
   const[videoTitle, setVideoTitle] = useState('');
   const[videoGroup, setVideoGroup] = useState('');
+  const[videoGroups, setVideoGroups] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('info');
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVideoGroups = async () => {
+      const usertoken = user.stsTokenManager.accessToken;
+      const requestBody = {
+        usertoken: usertoken
+      };
+      const videoGroupEndpoint = `http://localhost:5000/api/videos/videoGroups?email=${user.email}`;
+      try {
+        const response = await axios.post(videoGroupEndpoint, requestBody, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const tempArray = JSON.parse(response.data);
+        console.log(`response from videoGroups: ${tempArray.length}`);
+        setVideoGroups(tempArray); 
+        setLoading(false); // Set loading to false after fetching
+      } catch (err) {
+        console.error(err);
+      }
+    };
+  
+    // Call the async function
+    if (user) {
+      fetchVideoGroups();
+    }
+  }, [user]); // Add `user` as a dependency
+  
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
@@ -56,7 +87,9 @@ export const FileUpload = ({ onUploadComplete, user }) => {
 
       } catch (err) {
         console.log(err);
-      }    
+      } 
+      
+     
 
       setSnackbarMessage('File uploaded successfully!');
       setSnackbarSeverity('success');
@@ -94,26 +127,13 @@ export const FileUpload = ({ onUploadComplete, user }) => {
     color: 'black' // Changed to black for visibility
   }} 
 />
-
-<label htmlFor="vgroup" style={{ display: 'block', marginBottom: '4px' }}>
-          Video Group
-        </label>
-        <Select
-          id="vgroup"
-          value={videoGroup}
-          onChange={(e) => setVideoGroup(e.target.value)}
-          style={{ 
-            marginBottom: '8px', 
-            width: '100%', 
-            backgroundColor: 'white', 
-            color: 'black' 
-          }}
-        >
-          <MenuItem value="Emmy Winners">Emmy Winners</MenuItem>
-          <MenuItem value="Animations">Animations</MenuItem>
-          <MenuItem value="Games">Games</MenuItem>
-          <MenuItem value="Other">Other</MenuItem>
-        </Select>
+{loading ? (
+               <div>Loading...</div>
+           ) : (
+            <VideoGroupSelect videoGroup={videoGroup} setVideoGroup={setVideoGroup} videoGroups={videoGroups}   />
+           )}
+     
+  
 </div>
 
       <Input type="file" onChange={handleFileChange} />

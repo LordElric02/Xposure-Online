@@ -9,7 +9,6 @@ const UserVideos  =({ refreshVideos, user }) =>{
     const [videoTitle, setVideoTitle] = useState('');
   const videoRef = useRef(null); // Crea
 
-  console.log(`user check: ${user.email}`);
   useEffect(() => {
     const fetchVideos = async () => {
       try {

@@ -9,8 +9,6 @@ const VideoPlayerUser  =({ refreshVideos, user }) =>{
   const [currentVideo, setCurrentVideo] = useState(null);
   const [user, setUser] = useState(null);
 
-  console.log(`user check: ${user}`); 
-
   useEffect(() => {
     const fetchVideos = async () => {
       try {

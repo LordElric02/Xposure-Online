@@ -1,9 +1,10 @@
 import Router from 'express';
 import { v4 } from 'uuid';
 import admin from 'firebase-admin';
-import { downloadFile, recordecentApprovedVideos, userVideos } from '../components/firebaseUtils.js';
+import { downloadFile, groupList, recordecentApprovedVideos, userVideos } from '../components/firebaseUtils.js';
 import verifyToken from '../middlewares/auth.js';
 import dotenv from 'dotenv';
+
 
 dotenv.config(); // Load the environment variables from the .env file
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
@@ -77,5 +78,30 @@ router.post('/uservideos', async (req, res) => {
 
   res.json(jsonvideos);
 });
+
+router.post('/uservideosByGroup', async (req, res) => {
+  const email = req.query.email; 
+  const group = req.query.group; 
+  console.log(`email passed into api: ${email}`);
+  console.log(`group passed into api: ${group}`);
+  // Set the Content-Type header to application/json
+  res.setHeader('Content-Type', 'application/json');
+  const groupVideos = await videosByUserGroups(admin, email,group);
+  const jsonGroupVideos = JSON.stringify(groupVideos);
+
+  res.json(jsonGroupVideos);
+});
+
+router.post('/videoGroups', async (req, res) => {
+  const email = req.query.email; 
+  console.log(`email passed into api: ${email}`);
+  // Set the Content-Type header to application/json
+  res.setHeader('Content-Type', 'application/json');
+  const groups = await groupList(admin, email);
+  const jsongroups = JSON.stringify(groups);
+
+  res.json(jsongroups);
+});
+
 
 export default router;

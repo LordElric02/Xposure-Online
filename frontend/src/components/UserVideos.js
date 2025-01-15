@@ -1,53 +1,54 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import  { ThumbnailGallery } from './ThumnnailGallery';
-import Typography from '@mui/material/Typography'; // Import Typography from Material-UI
+import VideoPlayer from './PlayVideo'; // Import the new VideoPlayer component
+import VideoGroupGallery from './VideoGroupGallery'; // Import the new VideoGroupGallery component
 
-const UserVideos  =({ refreshVideos, user }) =>{
-  const [videos, setVideoList] = useState([]); 
+const UserVideos = ({ refreshVideos, user }) => {
+  const [videoGroups, setVideoGroups] = useState([]);
+  const [videosByGroup, setVideosByGroup] = useState({});
   const [currentVideo, setCurrentVideo] = useState(null);
-    const [videoTitle, setVideoTitle] = useState('');
-  const videoRef = useRef(null); // Crea
+  const [videoTitle, setVideoTitle] = useState('');
 
   useEffect(() => {
     const fetchVideos = async () => {
+      const vgroups = ['Emmy Winners', 'Animations', 'Games', 'Community', 'Educational'];
+      setVideoGroups(vgroups);
+
+      const usertoken = user.stsTokenManager.accessToken;
+
       try {
-        const usertoken = user.stsTokenManager.accessToken;
-        const thumbnailEndpoint = `http://localhost:5000/api/videos/uservideos?email=${user.email}`;
-        const requestBody = {
-          usertoken: usertoken
-        };
-  
-        try {
+        const videoFetchPromises = vgroups.map(async (group) => {
+          const thumbnailEndpoint = `http://localhost:5000/api/videos/uservideosByGroup?email=${user.email}&group=${group}`;
+          const requestBody = { usertoken: usertoken };
+
           const response = await axios.post(thumbnailEndpoint, requestBody, {
             headers: {
               'Content-Type': 'application/json',
             },
           });
 
-          console.log(`check for user in user videos: ${user}`); 
-          // const response = await axios.get('http://localhost:5000/api/videos');
-          const tempArray = JSON.parse(response.data);
-          setCurrentVideo(tempArray[1].videoUrl);
-          setVideoTitle(tempArray[1].title); // Assuming the title is in the response
-          setVideoList(tempArray);  
-  
-        } catch (err) {
-          console.log(err);
-        }    
-     
- 
-      } catch (err) {   
+          return JSON.parse(response.data); // Assuming the response is an array of videos
+        });
+
+        const allVideos = await Promise.all(videoFetchPromises);
+        const videosMap = vgroups.reduce((acc, group, index) => {
+          acc[group] = allVideos[index];
+          return acc;
+        }, {});
+
+        setVideosByGroup(videosMap);
+        if (allVideos.length > 0 && allVideos[0].length > 0) {
+          setCurrentVideo(allVideos[0][0].videoUrl);
+          setVideoTitle(allVideos[0][0].title);
+        }
+
+      } catch (err) {
         console.log(err);
-      } finally {
-        console.log('finallyx');
-       
       }
     };
 
     fetchVideos();
- 
-  }, [refreshVideos]);
+  }, [refreshVideos, user]);
 
   const handleThumbnailClick = (videoUrl, title) => {
     setCurrentVideo(videoUrl);
@@ -56,45 +57,17 @@ const UserVideos  =({ refreshVideos, user }) =>{
 
   return (
     <div>
-      <Typography variant="h5" gutterBottom>{videoTitle}</Typography> {/* Use Material-UI Typography */}
-      <video 
-        ref={videoRef}
-        controls 
-        style={styles.video} 
-        src={currentVideo} 
-        autoPlay
-       />
-        <ThumbnailGallery videos={videos} handleThumbnailClick={handleThumbnailClick} />
+      <VideoPlayer currentVideo={currentVideo} videoTitle={videoTitle} />
+      {videoGroups.map(group => (
+        <VideoGroupGallery 
+          key={group} 
+          group={group} 
+          videos={videosByGroup[group] || []} 
+          handleThumbnailClick={handleThumbnailClick} 
+        />
+      ))}
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-  },
-  video: {
-    width: '80%',
-    maxHeight: '60vh',
-    marginBottom: '20px',
-  },
-  thumbnailContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-  },
-  thumbnail: {
-    width: '120px',
-    height: 'auto',
-    margin: '5px',
-    cursor: 'pointer',
-    border: '2px solid transparent',
-    transition: 'border 0.2s',
-  },
-};
 
 export default UserVideos;

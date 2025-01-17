@@ -1,4 +1,5 @@
 import Router from 'express';
+import multer from 'multer';
 import { v4 } from 'uuid';
 import admin from 'firebase-admin';
 import { downloadFile, groupList, recordecentApprovedVideos, groupVideos, userVideos } from '../components/firebaseUtils.js';
@@ -37,22 +38,24 @@ router.use(async (req, res, next) => {
   }
 });
 
-
-router.post('/GenerateThumbnail', async (req, res) => {
+const upload = multer({ dest: 'Video/' }); // Directory to save uploaded files
+router.post('/GenerateThumbnail', upload.single('file'), async (req, res) => {
   try {
     const filePath = req.query.filebaseName; 
     const fileUrl = req.query.fileUrl;
     const videoTitle = req.query.videotitle;
     const videoGroup = req.query.videogroup;  
+    const thumbnail = req.body.thumbnail;  
 
     const outputVideoPath = `${process.cwd()}/Video/firebasevideo${v4()}.mp4`;
 
     console.log(`begining download for: ${req.user}`);
     console.log(`video title: ${videoTitle}`);
     console.log(`video group: ${videoGroup}`);
+    console.log(`thumnail: ${thumbnail}`);
 
     // Download video
-    await downloadFile(filePath, outputVideoPath, fileUrl, req.user,videoTitle, videoGroup, admin); // Wait for the downloadFile to complete
+    await downloadFile(filePath, outputVideoPath, fileUrl, req.user,videoTitle, videoGroup, thumbnail, admin); // Wait for the downloadFile to complete
 
     // Here you could add additional processing for generating the thumbnail if needed
 

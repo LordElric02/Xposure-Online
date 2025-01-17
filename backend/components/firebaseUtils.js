@@ -7,7 +7,7 @@ import { getRecentApprovedVideos, getRecentUserVideos, getVideoGroups,getVideosB
 import { title } from 'process';
 import dotenv from 'dotenv';
 
-const outputThmbnailPath = `${process.cwd()}/video/thumbnail${v4()}.jpg`;
+const outputThumbnailPath = `${process.cwd()}/video/thumbnail${v4()}.jpg`;
 
 
 dotenv.config(); // Load the environment variables from the .env file
@@ -16,32 +16,64 @@ const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
 
 let outputVideoFile = '';
 
+
 // Function to download file from Firebase Storage
-export const downloadFile = async (filePath, destination, fileUrl, user,videoTitle,videoGroup, admin) => {
-  outputVideoFile = destination;
+export const downloadFile = async (filePath, destination, fileUrl, user, videoTitle, videoGroup, thumbnail, admin) => {
   const bucket = admin.storage().bucket();
   const file = bucket.file(filePath);
   console.log(`A`);
   console.log(`videoTitle: ${videoTitle}`);
   console.log(`videoGroup: ${videoGroup}`);
-  return new Promise((resolve, reject) => {
-    const destFileStream = fs.createWriteStream(destination);
 
-    file.createReadStream()
-      .on('error', (err) => {
-        console.error('Error downloading file:', err);
+  return new Promise((resolve, reject) => {
+    if (thumbnail) {
+      // If thumbnail is not null, write the contents of thumbnail to outputThumbnailPath
+      const thumbnailStream = fs.createWriteStream(outputThumbnailPath);
+      thumbnailStream.on('error', (err) => {
+        console.error('Error writing thumbnail:', err);
         reject(err); // Reject the promise on error
-      })
-      .on('end', async () => {
-        try {
-          console.log(`preparing to creae thumnail for user ${user} `);
-          await createThumbnail(destination, fileUrl, user,videoTitle,videoGroup, admin); // Await the thumbnail creation
-          resolve(); // Resolve the promise when thumbnail creation is complete
-        } catch (error) {
-          reject(error); // Reject the promise if thumbnail creation fails
+      });
+
+      // Write thumbnail content to file
+      thumbnailStream.write(thumbnail, async (err) => {
+        if (err) {
+          reject(err); // Reject if there's an error writing the thumbnail
+        } else {
+          console.log(`Thumbnail written to: ${outputThumbnailPath}`);
+          thumbnailStream.end(); // End the stream after writing
         }
-      })
-      .pipe(destFileStream);
+      });
+
+      thumbnailStream.on('finish', async () => {
+        try {
+          // Call uploadThumbnail after the thumbnail stream ends
+          await uploadThumbnail(outputThumbnailPath, fileUrl, user, videoTitle, videoGroup, admin);
+          resolve(); // Resolve the promise after uploading the thumbnail
+        } catch (error) {
+          reject(error); // Reject if there's an error in uploading the thumbnail
+        }
+      });
+      
+    } else {
+      // Only execute this block if thumbnail is null
+      const destFileStream = fs.createWriteStream(destination);
+
+      file.createReadStream()
+        .on('error', (err) => {
+          console.error('Error downloading file:', err);
+          reject(err); // Reject the promise on error
+        })
+        .on('end', async () => {
+          try {
+            console.log(`Preparing to create thumbnail for user ${user}`);
+            await createThumbnail(destination, fileUrl, user, videoTitle, videoGroup, admin); // Await the thumbnail creation
+            resolve(); // Resolve the promise when thumbnail creation is complete
+          } catch (error) {
+            reject(error); // Reject the promise if thumbnail creation fails
+          }
+        })
+        .pipe(destFileStream);
+    }
   });
 };
 
@@ -59,11 +91,11 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user,videoTitle,
           .seekInput(thumbnailTime)
           .frames(1)
           .size("300x300")
-          .output(outputThmbnailPath)
+          .output(outputThumbnailPath)
           .on("end", async () => {
               try {
                 console.log(`preparing to upload thumbnail for user ${user}`);
-                  await uploadThumbnail(outputThmbnailPath, fileUrl, user,videoTitle,videoGroup,  admin); // Await the upload
+                  await uploadThumbnail(outputThumbnailPath, fileUrl, user,videoTitle,videoGroup,  admin); // Await the upload
                   resolve(); // Resolve the promise after upload is complete
               } catch (error) {
                   reject(error); // Reject the promise if upload fails
@@ -100,7 +132,7 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user,videoTitle,
 
     // Delete the temporary files
     fs.unlinkSync(outputVideoFile);
-    fs.unlinkSync(outputThmbnailPath);   
+    fs.unlinkSync(outputThumbnailPath);   
   };
 
   const generateThumbnailUrl =  (fileUrl) => {

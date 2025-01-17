@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Snackbar, Alert, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Button, Snackbar, Alert, Box,  Checkbox, FormControlLabel  } from '@mui/material';
 import { TextField } from '@mui/material';
 import Input from '@mui/material/Input';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -11,7 +11,9 @@ import  VideoGroupSelect  from './videoGroupsSelect';
 
 
 export const FileUpload = ({ onUploadComplete, user }) => {
+  const [showUpload, setShowUpload] = useState(false);
   const [file, setFile] = useState(null);
+  const [thumbnail, setThumbnail] = useState(null);
   const[videoTitle, setVideoTitle] = useState('');
   const[videoGroup, setVideoGroup] = useState('');
   const[videoGroups, setVideoGroups] = useState([]);
@@ -54,6 +56,11 @@ export const FileUpload = ({ onUploadComplete, user }) => {
     setFile(event.target.files[0]);
   };
 
+  const handleThumbnailChange = (event) => {
+    setThumbnail(event.target.files[0]);
+  };
+
+
   const handleUpload = async () => {
     if (!file) {
       setSnackbarMessage('Please select a file to upload.');
@@ -73,23 +80,47 @@ export const FileUpload = ({ onUploadComplete, user }) => {
       const fileName = firebaseName(url);
       const encodedUrl = encodeURIComponent(url);
       const usertoken = user.stsTokenManager.accessToken;
+      var requestBody  = {};
       const thumbnailEndpoint = `http://localhost:5000/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
-      const requestBody = {
-        usertoken: usertoken
-      };
-
-      try {
-        const response = await axios.post(thumbnailEndpoint, requestBody, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-      } catch (err) {
-        console.log(err);
-      } 
       
-     
+      if (!thumbnail) {
+          console.log(`no thumbnail`);
+          requestBody = {
+            usertoken: usertoken
+          };
+          try {
+            const response = await axios.post(thumbnailEndpoint, requestBody, {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+    
+          } catch (err) {
+            console.log(err);
+          } 
+      } else {
+            console.log(`with thumbnail`);
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+              const thumbnailData = event.target.result; // This contains the file content
+              requestBody = {
+                usertoken: usertoken,
+                thumbnail: thumbnailData  
+              };
+              try {
+                const response = await axios.post(thumbnailEndpoint, requestBody, {
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                });
+        
+              } catch (err) {
+                console.log(err);
+              } 
+            };
+            reader.readAsArrayBuffer(thumbnail); // or readAsDataURL if you prefer
+      }
+   ;
 
       setSnackbarMessage('File uploaded successfully!');
       setSnackbarSeverity('success');
@@ -138,8 +169,24 @@ export const FileUpload = ({ onUploadComplete, user }) => {
 
       <Input type="file" onChange={handleFileChange} />
       <Button variant="contained" onClick={handleUpload}>
-        Upload
+        Upload Video
       </Button>
+      <Box>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={showUpload}
+            onChange={() => setShowUpload(!showUpload)}
+          />
+        }
+        label="Uplod Thumbnail"
+      />
+      {showUpload && (
+        <Box mt={2}>
+          <Input type="file" onChange={handleThumbnailChange} />
+        </Box>
+      )}
+    </Box>
 
       <Snackbar
         open={snackbarOpen}

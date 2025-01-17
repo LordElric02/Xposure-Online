@@ -23,6 +23,8 @@ export const FileUpload = ({ onUploadComplete, user }) => {
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const usertoken = user.stsTokenManager.accessToken;
+
   useEffect(() => {
     const fetchVideoGroups = async () => {
       const usertoken = user.stsTokenManager.accessToken;
@@ -72,6 +74,31 @@ export const FileUpload = ({ onUploadComplete, user }) => {
     const videosListRef = ref(storage, `videos/uploadvideos_${v4()}`);
     const thumbnailEndpoint = '';
 
+    const uploadThumbnail = () => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const thumbnailData = event.target.result; // This contains the file content
+          requestBody = {
+            usertoken: usertoken,
+            thumbnail: thumbnailData  
+          };
+          try {
+            const response = await axios.post(thumbnailEndpoint, requestBody, {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+            resolve(response); // Resolve the promise on successful upload
+          } catch (err) {
+            console.log(err);
+            reject(err); // Reject the promise on error
+          }
+        };
+        reader.readAsArrayBuffer(thumbnail); // or readAsDataURL if you prefer
+      });
+    };
+
     try {
       setUploading(true);
 
@@ -79,7 +106,6 @@ export const FileUpload = ({ onUploadComplete, user }) => {
       const url = await getDownloadURL(snapshot.ref);
       const fileName = firebaseName(url);
       const encodedUrl = encodeURIComponent(url);
-      const usertoken = user.stsTokenManager.accessToken;
       var requestBody  = {};
       const thumbnailEndpoint = `http://localhost:5000/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
       
@@ -99,26 +125,16 @@ export const FileUpload = ({ onUploadComplete, user }) => {
             console.log(err);
           } 
       } else {
-            console.log(`with thumbnail`);
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-              const thumbnailData = event.target.result; // This contains the file content
-              requestBody = {
-                usertoken: usertoken,
-                thumbnail: thumbnailData  
-              };
-              try {
-                const response = await axios.post(thumbnailEndpoint, requestBody, {
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                });
-        
-              } catch (err) {
-                console.log(err);
-              } 
-            };
-            reader.readAsArrayBuffer(thumbnail); // or readAsDataURL if you prefer
+          console.log(`with thumbnail`);
+          try {
+            await uploadThumbnail(); // Await the thumbnail upload
+          } catch (error) {
+            setSnackbarMessage('Error uploading thumbnail.');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+            return; // Exit if there's an error
+          }
+         
       }
    ;
 

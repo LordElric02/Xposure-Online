@@ -67,6 +67,7 @@ export const downloadFile = async (filePath, destination, fileUrl, user, videoTi
           try {
             console.log(`Preparing to create thumbnail for user ${user}`);
             await createThumbnail(destination, fileUrl, user, videoTitle, videoGroup, admin); // Await the thumbnail creation
+            fs.unlinkSync(outputVideoFile);
             resolve(); // Resolve the promise when thumbnail creation is complete
           } catch (error) {
             reject(error); // Reject the promise if thumbnail creation fails
@@ -131,8 +132,7 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user,videoTitle,
     await saveToDatabase(fileUrl, generateThumbnailUrl(thumbnailSuffix), user,videoTitle,videoGroup, admin);
 
     // Delete the temporary files
-    fs.unlinkSync(outputVideoFile);
-    fs.unlinkSync(outputThumbnailPath);   
+     fs.unlinkSync(outputThumbnailPath);   
   };
 
   const generateThumbnailUrl =  (fileUrl) => {

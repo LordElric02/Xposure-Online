@@ -72,19 +72,22 @@ export const FileUpload = ({ onUploadComplete, user }) => {
     }
 
     const videosListRef = ref(storage, `videos/uploadvideos_${v4()}`);
-    const thumbnailEndpoint = '';
 
-    const uploadThumbnail = () => {
+    const uploadThumbnail = (thumbnailEndpoint, thumbnail) => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = async (event) => {
           const thumbnailData = event.target.result; // This contains the file content
+          const base64Thumbnail = btoa(
+            new Uint8Array(thumbnailData)
+                .reduce((data, byte) => data + String.fromCharCode(byte), '')
+        );
           requestBody = {
             usertoken: usertoken,
-            thumbnail: thumbnailData  
+            thumbnail: base64Thumbnail  
           };
           try {
-            const response = await axios.post(thumbnailEndpoint, requestBody, {
+            const response = await axios.post(thumbnailEndpoint, JSON.stringify(requestBody), {
               headers: {
                 'Content-Type': 'application/json',
               },
@@ -127,7 +130,8 @@ export const FileUpload = ({ onUploadComplete, user }) => {
       } else {
           console.log(`with thumbnail`);
           try {
-            await uploadThumbnail(); // Await the thumbnail upload
+            console.log('with thumbnail');
+            await uploadThumbnail(thumbnailEndpoint,thumbnail); // Await the thumbnail upload
           } catch (error) {
             setSnackbarMessage('Error uploading thumbnail.');
             setSnackbarSeverity('error');

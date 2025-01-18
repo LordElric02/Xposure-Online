@@ -12,7 +12,7 @@ import MyVideos from './components/MyVideos';
 import MyAccount from './components/MyAccount';
 import Animations from './components/Animations';
 import PrintingServices from './components/PrintingServices';
-import Login from './components/Login';
+import HomeVideos from './components/HomeVideos';
 
 
 
@@ -21,7 +21,7 @@ const MyRoutes = () => {
    <Router>
     <Layout>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<HomeVideos />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/myvideos" element={<MyVideos /> } /> 
         <Route path="/myaccount" element={<MyAccount  /> } /> 

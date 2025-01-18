@@ -46,14 +46,17 @@ router.post('/GenerateThumbnail', upload.single('file'), async (req, res) => {
     const videoTitle = req.query.videotitle;
     const videoGroup = req.query.videogroup;
     const { thumbnail } = req.body;
-    const buffer = Buffer.from(thumbnail, 'base64');
+    const buffer = thumbnail ? Buffer.from(thumbnail, 'base64') : null;
 
     const outputVideoPath = `${process.cwd()}/Video/firebasevideo${v4()}.mp4`;
 
     console.log(`begining download for: ${req.user}`);
     console.log(`video title: ${videoTitle}`);
     console.log(`video group: ${videoGroup}`);
-    console.log(`thumnail: ${buffer}`);
+    if(thumbnail) {
+      console.log(`thumnail: ${thumbnail}`);
+    }
+
 
     // Download video
     await downloadFile(filePath, outputVideoPath, fileUrl, req.user,videoTitle, videoGroup, buffer, admin); // Wait for the downloadFile to complete

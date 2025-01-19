@@ -4,7 +4,7 @@ import VideoPlayer from './PlayVideo'; // Import the new VideoPlayer component
 import VideoGroupGallery from './VideoGroupGallery'; // Import the new VideoGroupGallery component
 import Loader from './Loader';
 
-const UserVideos = ({ refreshVideos, user }) => {
+const  qUserVideos = ({ refreshVideos, user }) => {
   const [videoGroups, setVideoGroups] = useState([]);
   const [videosByGroup, setVideosByGroup] = useState({});
   const [currentVideo, setCurrentVideo] = useState(null);

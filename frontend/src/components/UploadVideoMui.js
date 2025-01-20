@@ -22,7 +22,7 @@ export const UploadVideoMui = () => {
             //generate 
             const fileName = firebaseName(url);
             const encodedUrl = encodeURIComponent(url);
-            const response = await axios.get(`http://localhost:5000/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}`);
             })
             
       });

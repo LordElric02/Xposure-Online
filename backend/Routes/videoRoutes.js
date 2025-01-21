@@ -4,10 +4,7 @@ import { v4 } from 'uuid';
 import admin from 'firebase-admin';
 import { downloadFile, groupList, recordecentApprovedVideos, groupVideos, userVideos } from '../components/firebaseUtils.js';
 import verifyToken from '../middlewares/auth.js';
-import dotenv from 'dotenv';
 
-
-dotenv.config(); // Load the environment variables from the .env file
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
 // Initialize Firebase Admin SDK
 admin.initializeApp({

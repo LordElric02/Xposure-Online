@@ -1,8 +1,6 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 
 const verifyToken = async (req, res,admin, next) => {
-    dotenv.config(); // Load the environment variables from the .env file
     // Initialize Firebase Admin SDK
     const { usertoken } = req.body;
      // const usertoken = req.body.usertoken; // Get the Firebase ID token from the request body

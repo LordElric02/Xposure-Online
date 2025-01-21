@@ -17,7 +17,7 @@ const VideoCarousel = () => {
     const source = axios.CancelToken.source();
     const fetchVideos = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}videos`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/videos`);
         const tempArray = JSON.parse(response.data);
         setVideoArray(tempArray);
         //console.log(response.data);

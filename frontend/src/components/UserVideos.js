@@ -20,7 +20,7 @@ const  UserVideos = ({ refreshVideos, user }) => {
 
       try {
         const videoFetchPromises = vgroups.map(async (group) => {
-          const thumbnailEndpoint = `${process.env.REACT_APP_API_URL}videos/uservideosByGroup?email=${user.email}&group=${group}`;
+          const thumbnailEndpoint = `${process.env.REACT_APP_API_URL}/videos/uservideosByGroup?email=${user.email}&group=${group}`;
           const requestBody = { usertoken: usertoken };
 
           const response = await axios.post(thumbnailEndpoint, requestBody, {

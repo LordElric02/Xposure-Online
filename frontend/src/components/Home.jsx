@@ -32,9 +32,6 @@ function Home() {
   return (
    <>
       <StyledPaper>
-        <Header variant="h2">
-          {user ? `Welcome ${user.displayName}` : ''}
-        </Header>
         <Grid2 container spacing={2}>
           <Grid2 item xs={12}>
             <SearchVideos />

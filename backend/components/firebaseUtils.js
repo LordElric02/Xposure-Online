@@ -4,15 +4,8 @@ import ffmpeg from 'fluent-ffmpeg';
 import { readFileSync } from "fs";
 import { createRecord } from "./firebaseDB.js";
 import { getRecentApprovedVideos, getRecentUserVideos, getVideoGroups,getVideosByGroup } from "./approvedVideos.js";
-import { title } from 'process';
-import dotenv from 'dotenv';
 
 const outputThumbnailPath = `${process.cwd()}/video/thumbnail${v4()}.jpg`;
-
-
-dotenv.config(); // Load the environment variables from the .env file
-
-const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
 
 let outputVideoFile = '';
 

@@ -12,7 +12,7 @@ const VideoPlayer = ({ refreshVideos }) => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}videos`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/videos`);
         const tempArray = JSON.parse(response.data);
         setCurrentVideo(tempArray[1].videoUrl);
         setVideoTitle(tempArray[1].title); // Assuming the title is in the response

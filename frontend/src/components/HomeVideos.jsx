@@ -31,9 +31,6 @@ const HomeVideos = () => {
   return (
     <>
       <StyledPaper>
-      <Header variant="h2">
-          {user ? `Welcome ${user.displayName}` : ''}
-        </Header>
   <Grid2 container spacing={2}>
   <Grid2 container item xs={12} alignItems="flex-start">
 

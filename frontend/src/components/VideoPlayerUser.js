@@ -12,7 +12,7 @@ const VideoPlayerUser  =({ refreshVideos, user }) =>{
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await axios.get('${process.env.REACT_APP_API_URL}videos');
+        const response = await axios.get('${process.env.REACT_APP_API_URL}/videos');
         const tempArray = JSON.parse(response.data);
         setVideoList(tempArray);  
  

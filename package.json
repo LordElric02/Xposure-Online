@@ -1,0 +1,14 @@
+{
+  "name": "xposure-online-root",
+  "version": "1.0.0",
+  "description": "Prototype for Xposure Inc.",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd frontend && npm run build && copyfiles -u 1 frontend/build/**/* backend/public"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "copyfiles": "^2.4.1"
+  }
+}

@@ -1,5 +1,5 @@
 **/node_modules/
-**/VIDEO/
+/backend/Data/serviceAccountKey.json
 /backend/Data/serviceAccountKey.json
 /frontend/package-lock.json
 /frontend/yarn.lock

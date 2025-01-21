@@ -17,7 +17,17 @@ const VideoCarousel = () => {
     const source = axios.CancelToken.source();
     const fetchVideos = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/videos');
+        let apiUrl = "";
+        const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'https://xposure-inc.onrender.com/');    
+        if (!isRunningInsideBackend) {
+          // This code runs only in the frontend
+         apiUrl =`${process.env.REACT_APP_API_URL}/videos`
+        } else {
+            // This code runs only in the backend
+            apiUrl =`/api/videos`
+        }
+      
+        const response = await axios.get(apiUrl);
         const tempArray = JSON.parse(response.data);
         setVideoArray(tempArray);
         //console.log(response.data);

@@ -1,22 +1,75 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Snackbar, Alert } from '@mui/material';
+import { Button, Snackbar, Alert, Box,  Checkbox, FormControlLabel  } from '@mui/material';
+import { TextField } from '@mui/material';
 import Input from '@mui/material/Input';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from './firebase';
 import { v4 } from 'uuid';
 import { firebaseName } from '../Utils/fileNameExtractor';
+import  VideoGroupSelect  from './videoGroupsSelect';
+
 
 export const FileUpload = ({ onUploadComplete, user }) => {
+  const [showUpload, setShowUpload] = useState(false);
   const [file, setFile] = useState(null);
+  const [thumbnail, setThumbnail] = useState(null);
+  const[videoTitle, setVideoTitle] = useState('');
+  const[videoGroup, setVideoGroup] = useState('');
+  const[videoGroups, setVideoGroups] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('info');
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const usertoken = user.stsTokenManager.accessToken;
+
+  useEffect(() => {
+    const fetchVideoGroups = async () => {
+      const usertoken = user.stsTokenManager.accessToken;
+      const requestBody = {
+        usertoken: usertoken
+      };
+
+      let videoGroupEndpoint = ``;
+      const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'https://xposure-inc.onrender.com/');    
+      if (!isRunningInsideBackend) {
+          videoGroupEndpoint = `${process.env.REACT_APP_API_URL}/videos/videoGroups?email=${user.email}`;
+      } else {
+          videoGroupEndpoint = `/api/videos/videoGroups?email=${user.email}`;
+      }
+      console.log(`videoGroupEndpoint: ${videoGroupEndpoint}`);
+      try {
+        const response = await axios.post(videoGroupEndpoint, requestBody, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const tempArray = JSON.parse(response.data);
+        console.log(`response from videoGroups: ${tempArray.length}`);
+        setVideoGroups(tempArray); 
+        setLoading(false); // Set loading to false after fetching
+      } catch (err) {
+        console.error(err);
+      }
+    };
+  
+    // Call the async function
+    if (user) {
+      fetchVideoGroups();
+    }
+  }, [user]); // Add `user` as a dependency
+  
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
+
+  const handleThumbnailChange = (event) => {
+    setThumbnail(event.target.files[0]);
+  };
+
 
   const handleUpload = async () => {
     if (!file) {
@@ -27,7 +80,35 @@ export const FileUpload = ({ onUploadComplete, user }) => {
     }
 
     const videosListRef = ref(storage, `videos/uploadvideos_${v4()}`);
-    const thumbnailEndpoint = '';
+
+    const uploadThumbnail = (thumbnailEndpoint, thumbnail) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const thumbnailData = event.target.result; // This contains the file content
+          const base64Thumbnail = btoa(
+            new Uint8Array(thumbnailData)
+                .reduce((data, byte) => data + String.fromCharCode(byte), '')
+        );
+          requestBody = {
+            usertoken: usertoken,
+            thumbnail: base64Thumbnail  
+          };
+          try {
+            const response = await axios.post(thumbnailEndpoint, JSON.stringify(requestBody), {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+            resolve(response); // Resolve the promise on successful upload
+          } catch (err) {
+            console.log(err);
+            reject(err); // Reject the promise on error
+          }
+        };
+        reader.readAsArrayBuffer(thumbnail); // or readAsDataURL if you prefer
+      });
+    };
 
     try {
       setUploading(true);
@@ -36,22 +117,46 @@ export const FileUpload = ({ onUploadComplete, user }) => {
       const url = await getDownloadURL(snapshot.ref);
       const fileName = firebaseName(url);
       const encodedUrl = encodeURIComponent(url);
-      const usertoken = user.stsTokenManager.accessToken;
-      const thumbnailEndpoint = `http://localhost:5000/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}`;
-      const requestBody = {
-        usertoken: usertoken
-      };
+      var requestBody  = {};
+      let thumbnailEndpoint = ``;
+      const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'https://xposure-inc.onrender.com/');    
+      if (!isRunningInsideBackend) {
+        // This code runs only in the frontend
+        thumbnailEndpoint = `${process.env.REACT_APP_API_URL}/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
+      } else {
+          // This code runs only in the backend
+          thumbnailEndpoint = `/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
+      }
 
-      try {
-        const response = await axios.post(thumbnailEndpoint, requestBody, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-      } catch (err) {
-        console.log(err);
-      }    
+      if (!thumbnail) {
+          console.log(`no thumbnail`);
+          requestBody = {
+            usertoken: usertoken
+          };
+          try {
+            const response = await axios.post(thumbnailEndpoint, requestBody, {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+    
+          } catch (err) {
+            console.log(err);
+          } 
+      } else {
+          console.log(`with thumbnail`);
+          try {
+            console.log('with thumbnail');
+            await uploadThumbnail(thumbnailEndpoint,thumbnail); // Await the thumbnail upload
+          } catch (error) {
+            setSnackbarMessage('Error uploading thumbnail.');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+            return; // Exit if there's an error
+          }
+         
+      }
+   ;
 
       setSnackbarMessage('File uploaded successfully!');
       setSnackbarSeverity('success');
@@ -72,10 +177,52 @@ export const FileUpload = ({ onUploadComplete, user }) => {
 
   return (
     <div style={{ position: 'relative' }}>
+     <div>
+     <label htmlFor="vtitle" style={{ display: 'block', marginBottom: '4px' }}>
+  Video Title
+</label>
+<Input 
+  id="vtitle"
+  type="text" 
+  placeholder="Video Title" 
+  value={videoTitle} 
+  onChange={(e) => setVideoTitle(e.target.value)} 
+  style={{ 
+    marginBottom: '8px', 
+    width: '100%', 
+    backgroundColor: 'white', 
+    color: 'black' // Changed to black for visibility
+  }} 
+/>
+{loading ? (
+               <div>Loading...</div>
+           ) : (
+            <VideoGroupSelect videoGroup={videoGroup} setVideoGroup={setVideoGroup} videoGroups={videoGroups}   />
+           )}
+     
+  
+</div>
+
       <Input type="file" onChange={handleFileChange} />
       <Button variant="contained" onClick={handleUpload}>
-        Upload
+        Upload Video
       </Button>
+      <Box>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={showUpload}
+            onChange={() => setShowUpload(!showUpload)}
+          />
+        }
+        label="Uplod Thumbnail"
+      />
+      {showUpload && (
+        <Box mt={2}>
+          <Input type="file" onChange={handleThumbnailChange} />
+        </Box>
+      )}
+    </Box>
 
       <Snackbar
         open={snackbarOpen}

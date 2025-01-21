@@ -1,53 +1,57 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import  { ThumbnailGallery } from './ThumnnailGallery';
+import {ThumbnailGallery} from './ThumnnailGallery';
+import Typography from '@mui/material/Typography'; // Import Typography from Material-UI
 
-const VideoPlayer  =({ refreshVideos }) =>{
-  const [videos, setVideoList] = useState([]); 
+const VideoPlayer = ({ refreshVideos }) => {
+  const [videos, setVideoList] = useState([]);
   const [currentVideo, setCurrentVideo] = useState(null);
-  const videoRef = useRef(null); // Crea
+  const [videoTitle, setVideoTitle] = useState('');
+  const videoRef = useRef(null);
 
   useEffect(() => {
+    let apiUrl = "";
+    const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'https://xposure-inc.onrender.com/');    
+      if (!isRunningInsideBackend) {
+      // This code runs only in the frontend
+      apiUrl = `${process.env.REACT_APP_API_URL}/videos`
+    } else {
+        apiUrl = `/api/videos`
+    }
+    
     const fetchVideos = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/videos');
+        const response = await axios.get(apiUrl);
         const tempArray = JSON.parse(response.data);
         setCurrentVideo(tempArray[1].videoUrl);
-        setVideoList(tempArray);  
- 
-      } catch (err) {   
+        setVideoTitle(tempArray[1].title); // Assuming the title is in the response
+        setVideoList(tempArray);
+      } catch (err) {
         console.log(err);
       } finally {
         console.log('finallyx');
-       
       }
     };
 
     fetchVideos();
- 
   }, [refreshVideos]);
 
-
-  // useEffect(() => {
-  //   if (videoRef.current && currentVideo) {
-  //     videoRef.current.play(); // Trigger play on the video element
-  //   }
-  // }, [currentVideo]); // Run this effect when currentVideo changes
-
-  const handleThumbnailClick = (videoUrl) => {
+  const handleThumbnailClick = (videoUrl, title) => {
     setCurrentVideo(videoUrl);
+    setVideoTitle(title); // Update the title when thumbnail is clicked
   };
 
   return (
-    <div>
+    <div style={styles.container}>
+      <Typography variant="h5" gutterBottom>{videoTitle}</Typography> {/* Use Material-UI Typography */}
       <video 
         ref={videoRef}
         controls 
         style={styles.video} 
         src={currentVideo} 
         autoPlay
-       />
-        <ThumbnailGallery videos={videos} handleThumbnailClick={handleThumbnailClick} />
+      />
+      <ThumbnailGallery videos={videos} handleThumbnailClick={handleThumbnailClick} />
     </div>
   );
 }

@@ -33,7 +33,7 @@ export const FileUpload = ({ onUploadComplete, user }) => {
       };
 
       let videoGroupEndpoint = ``;
-      const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'https://xposure-inc.onrender.com/');    
+      const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'xposure-online.onrender.com');    
       if (!isRunningInsideBackend) {
           videoGroupEndpoint = `${process.env.REACT_APP_API_URL}/videos/videoGroups?email=${user.email}`;
       } else {
@@ -119,7 +119,7 @@ export const FileUpload = ({ onUploadComplete, user }) => {
       const encodedUrl = encodeURIComponent(url);
       var requestBody  = {};
       let thumbnailEndpoint = ``;
-      const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'https://xposure-inc.onrender.com/');    
+      const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'xposure-online.onrender.com');    
       if (!isRunningInsideBackend) {
         // This code runs only in the frontend
         thumbnailEndpoint = `${process.env.REACT_APP_API_URL}/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;

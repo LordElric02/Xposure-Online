@@ -13,14 +13,22 @@ const  UserVideos = ({ refreshVideos, user }) => {
 
   useEffect(() => {
     const fetchVideos = async () => {
-      const vgroups = ['Emmy Winners', 'Animations', 'Games', 'Community', 'Educational'];
+      const vgroups = ['Emmy Winners', 'Animations', 'Games', 'Community', 'Educational', 'Other'];
       setVideoGroups(vgroups);
 
       const usertoken = user.stsTokenManager.accessToken;
 
       try {
         const videoFetchPromises = vgroups.map(async (group) => {
-          const thumbnailEndpoint = `${process.env.REACT_APP_API_URL}/videos/uservideosByGroup?email=${user.email}&group=${group}`;
+          let thumbnailEndpoint = ``;
+          const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'https://xposure-inc.onrender.com/');    
+        if (!isRunningInsideBackend) {
+            // This code runs only in the frontend
+            thumbnailEndpoint = `${process.env.REACT_APP_API_URL}/videos/uservideosByGroup?email=${user.email}&group=${group}`;
+        } else {
+            // This code runs only in the backend
+            thumbnailEndpoint = `/api/videos/uservideosByGroup?email=${user.email}&group=${group}`;
+        }
           const requestBody = { usertoken: usertoken };
 
           const response = await axios.post(thumbnailEndpoint, requestBody, {

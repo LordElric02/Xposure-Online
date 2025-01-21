@@ -31,7 +31,15 @@ export const FileUpload = ({ onUploadComplete, user }) => {
       const requestBody = {
         usertoken: usertoken
       };
-      const videoGroupEndpoint = `${process.env.REACT_APP_API_URL}/videos/videoGroups?email=${user.email}`;
+
+      let videoGroupEndpoint = ``;
+      const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'https://xposure-inc.onrender.com/');    
+      if (!isRunningInsideBackend) {
+          videoGroupEndpoint = `${process.env.REACT_APP_API_URL}/videos/videoGroups?email=${user.email}`;
+      } else {
+          videoGroupEndpoint = `/api/videos/videoGroups?email=${user.email}`;
+      }
+      console.log(`videoGroupEndpoint: ${videoGroupEndpoint}`);
       try {
         const response = await axios.post(videoGroupEndpoint, requestBody, {
           headers: {
@@ -110,8 +118,16 @@ export const FileUpload = ({ onUploadComplete, user }) => {
       const fileName = firebaseName(url);
       const encodedUrl = encodeURIComponent(url);
       var requestBody  = {};
-      const thumbnailEndpoint = `${process.env.REACT_APP_API_URL}/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
-      
+      let thumbnailEndpoint = ``;
+      const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'https://xposure-inc.onrender.com/');    
+      if (!isRunningInsideBackend) {
+        // This code runs only in the frontend
+        thumbnailEndpoint = `${process.env.REACT_APP_API_URL}/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
+      } else {
+          // This code runs only in the backend
+          thumbnailEndpoint = `/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
+      }
+
       if (!thumbnail) {
           console.log(`no thumbnail`);
           requestBody = {

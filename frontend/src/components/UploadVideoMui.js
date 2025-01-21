@@ -14,6 +14,15 @@ import { firebaseName } from '../Utils/fileNameExtractor'
 
 export const UploadVideoMui = () => {
     const [videoUpload  , setVideoUpload] = useState(null);
+    let apiUrl = "";
+    const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'https://xposure-inc.onrender.com/');    
+    if (!isRunningInsideBackend) {
+        // This code runs only in the frontend
+       apiUrl = `${process.env.REACT_APP_API_URL}/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}`;
+    } else {
+        // This code runs only in the backend
+        apiUrl = `/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}`;
+    }
     const uploadVideo = () => {  
         if(videoUpload === null) return null;
         const videosListRef = ref(storage, `videos/uploadvideos_${ v4()}`);  
@@ -22,7 +31,7 @@ export const UploadVideoMui = () => {
             //generate 
             const fileName = firebaseName(url);
             const encodedUrl = encodeURIComponent(url);
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}`);
+            const response = await axios.get(apiUrl);
             })
             
       });

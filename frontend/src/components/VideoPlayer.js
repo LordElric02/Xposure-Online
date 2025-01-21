@@ -10,9 +10,18 @@ const VideoPlayer = ({ refreshVideos }) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
+    let apiUrl = "";
+    const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'https://xposure-inc.onrender.com/');    
+      if (!isRunningInsideBackend) {
+      // This code runs only in the frontend
+      apiUrl = `${process.env.REACT_APP_API_URL}/videos`
+    } else {
+        apiUrl = `/api/videos`
+    }
+    
     const fetchVideos = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/videos`);
+        const response = await axios.get(apiUrl);
         const tempArray = JSON.parse(response.data);
         setCurrentVideo(tempArray[1].videoUrl);
         setVideoTitle(tempArray[1].title); // Assuming the title is in the response

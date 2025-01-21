@@ -3,7 +3,7 @@ import { v4 } from 'uuid';
 import ffmpeg from 'fluent-ffmpeg';
 import { readFileSync } from "fs";
 import { createRecord } from "./firebaseDB.js";
-import { getRecentApprovedVideos, getRecentUserVideos, getVideoGroups,getVideosByGroup } from "./approvedVideos.js";
+import { getRecentApprovedVideos, getRecentUserVideos, getVideoGroups,getVideosByGroup, getVideosByGroupByUser } from "./approvedVideos.js";
 
 const outputThumbnailPath = `${process.cwd()}/video/thumbnail${v4()}.jpg`;
 
@@ -164,8 +164,12 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user,videoTitle,
     return getRecentUserVideos(admin, email);
   }
 
-  export const groupVideos = async (admin, email,group) => {
-    return getVideosByGroup(admin, email,group);
+  export const groupVideosByUser = async (admin, email,group) => {
+    return getVideosByGroupByUser(admin, email,group);
+  }
+
+  export const groupVideos = async (admin, group) => {
+    return getVideosByGroup(admin, group);
   }
 
   export const groupList = async (admin, email) => {

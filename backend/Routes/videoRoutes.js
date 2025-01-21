@@ -2,7 +2,7 @@ import Router from 'express';
 import multer from 'multer';
 import { v4 } from 'uuid';
 import admin from 'firebase-admin';
-import { downloadFile, groupList, recordecentApprovedVideos, groupVideos, userVideos } from '../components/firebaseUtils.js';
+import { downloadFile, groupList, recordecentApprovedVideos, groupVideos, userVideos, groupVideosByUser } from '../components/firebaseUtils.js';
 import verifyToken from '../middlewares/auth.js';
 
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
@@ -24,6 +24,18 @@ router.get('/', async (req, res) => {
 
   res.json(jsonvideos);
 });
+
+router.post('/videosByGroup', async (req, res) => {
+  const group = req.query.group; 
+  console.log(`group passed into api: ${group}`);
+  // Set the Content-Type header to application/json
+  res.setHeader('Content-Type', 'application/json');
+  const videos = await groupVideos(admin,group);
+  const jsonGroupVideos = JSON.stringify(videos);
+
+  res.json(jsonGroupVideos);
+});
+
 
 
 // Middleware to verify token
@@ -90,7 +102,7 @@ router.post('/uservideosByGroup', async (req, res) => {
   console.log(`group passed into api: ${group}`);
   // Set the Content-Type header to application/json
   res.setHeader('Content-Type', 'application/json');
-  const videos = await groupVideos(admin,email,group);
+  const videos = await groupVideosByUser(admin,email,group);
   const jsonGroupVideos = JSON.stringify(videos);
 
   res.json(jsonGroupVideos);

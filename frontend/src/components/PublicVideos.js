@@ -18,8 +18,8 @@ const  PublicVideos = ({ refreshVideos }) => {
 
       try {
         const videoFetchPromises = vgroups.map(async (group) => {
-          console.log(`window.location.pathname: ${window.location.pathname}`); // Log the window.location.hostnam
-          const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'https://xposure-inc.onrender.com/');    
+          console.log(`window.location.hostname: ${window.location.hostname}`); // Log the window.location.hostnam
+          const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'xposure-online.onrender.com');    
           let videoEndpoint = ``;
           if (!isRunningInsideBackend) {
             videoEndpoint = `${process.env.REACT_APP_API_URL}/videos/videosByGroup?group=${group}`;

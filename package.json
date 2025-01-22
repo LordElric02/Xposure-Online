@@ -4,7 +4,8 @@
   "description": "Prototype for Xposure Inc.",
   "main": "index.js",
   "scripts": {
-    "build": "cd frontend && npm run build && copyfiles -u 1 frontend/build/**/* backend/public"
+    "build": "npm install --force && npm install --force --prefix frontend && npm install --force --prefix backend && npm run build --prefix frontend",
+    "start": "node backend/server.js"
   },
   "author": "",
   "license": "ISC",

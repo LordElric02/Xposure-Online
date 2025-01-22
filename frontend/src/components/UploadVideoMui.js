@@ -15,7 +15,7 @@ import { firebaseName } from '../Utils/fileNameExtractor'
 export const UploadVideoMui = () => {
     const [videoUpload  , setVideoUpload] = useState(null);
     let apiUrl = "";
-    const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'https://xposure-inc.onrender.com/');    
+    const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'xposure-online.onrender.com');    
     if (!isRunningInsideBackend) {
         // This code runs only in the frontend
        apiUrl = `${process.env.REACT_APP_API_URL}/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}`;

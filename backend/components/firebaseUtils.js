@@ -135,7 +135,7 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user,videoTitle,
   }
 
   const saveToDatabase = async (videoUrl, thumbnail, user, videoTitle,videoGroup, admin) => {
-    const videoPath = `videos/video_${v4()}`; // Define the path in the database
+    const videoPath = `videos/${v4()}`; // Define the path in the database
     console.log(`D`);
     console.log(`videoTitle: ${videoTitle}`);
     console.log(`videoGroup: ${videoGroup}`);

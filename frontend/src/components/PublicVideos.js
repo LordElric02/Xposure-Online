@@ -26,7 +26,6 @@ const  PublicVideos = ({ refreshVideos }) => {
           } else {
             videoEndpoint = `/api/videos/videosByGroup?group=${group}`;
           }
-          console.log(`videoEndpoint: ${videoEndpoint}`);
           const response = await axios.post(videoEndpoint, {
             headers: {
               'Content-Type': 'application/json',

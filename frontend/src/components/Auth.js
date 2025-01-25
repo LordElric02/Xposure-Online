@@ -4,7 +4,8 @@ import { Button, TextField, Typography, Container } from '@mui/material';
 import { auth } from './firebase';
 import { useAuth} from './AuthContext';
 import { useNavigate } from 'react-router-dom';
-import setUserRole from './firebaseUserRole';
+import {getFirebaseUserRole} from './firebaseUserRole';
+
 
 export const Auth = () => {
   const navigate = useNavigate();
@@ -15,10 +16,16 @@ export const Auth = () => {
   const { login } = useAuth();
 
 
+
   // Listen for authentication state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUserRole()
+      if(user != null)
+      {
+        const userId = user.uid;
+        console.log(`user uid:${userId}`);
+        getFirebaseUserRole(userId);
+      };
       setUser(user);
     });
 

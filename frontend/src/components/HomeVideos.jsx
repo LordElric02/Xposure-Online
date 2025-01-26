@@ -13,18 +13,18 @@ import 'fontsource-roboto';
 import UserVideos from './UserVideos';
 import PublicVideos from './PublicVideos';
 import FeaturedVideos from './FeaturedVideos'; // New component for featured videos
+import { useSelector } from 'react-redux'; // Import useSelector
+
 
 const HomeVideos = () => {
-   const [user, setUser] = useState(null);
+   // const [user, setUser] = useState(null);
    const [refreshVideos, setRefreshVideos] = useState(false);
-  
-   useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-         setUser(user);
-      });
-  
-      return () => unsubscribe();
-   }, []);
+   const user = useSelector((state) => state.auth.user); // Get user info from Redux store{{
+   const role = useSelector((state) => state.auth.role);
+   console.log(`user from redux store:${user.email}`);
+   console.log(`user role:${role}`);
+
+
   
    const handleFileUploadComplete = () => {
       setRefreshVideos((prev) => !prev); // Toggle to trigger re-render

@@ -13,6 +13,7 @@ import MyAccount from './components/MyAccount';
 import Animations from './components/Animations';
 import PrintingServices from './components/PrintingServices';
 import HomeVideos from './components/HomeVideos';
+import FullScreenVideo from './components/FullScreenVideo';
 
 
 
@@ -27,8 +28,8 @@ const MyRoutes = () => {
         <Route path="/myaccount" element={<MyAccount  /> } /> 
         <Route path="/animations" element={<Animations  /> } /> 
         <Route path="/login" element={<Auth  /> } /> 
-        <Route path="/logout" element={<Auth  /> } /> 
         <Route path="/printingservices" element={<PrintingServices  /> } /> 
+        <Route path="/fullscreenvideo" element={<FullScreenVideo />} />
         <Route path="/About" element={<About />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

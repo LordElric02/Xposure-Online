@@ -5,7 +5,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { Grid2 } from '@mui/material';
 import { FileUpload } from './UploadFileAndWait';
 import SearchVideos from './SearchVideos';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { Auth } from './Auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
@@ -13,18 +13,27 @@ import 'fontsource-roboto';
 import UserVideos from './UserVideos';
 import PublicVideos from './PublicVideos';
 import FeaturedVideos from './FeaturedVideos'; // New component for featured videos
+import { useSelector } from 'react-redux'; // Import useSelector
+import { useNavigate } from 'react-router-dom';
+
 
 const HomeVideos = () => {
-   const [user, setUser] = useState(null);
+   // const [user, setUser] = useState(null);
    const [refreshVideos, setRefreshVideos] = useState(false);
-  
+   const navigate = useNavigate(); // Initialize navigate
+   const user = useSelector((state) => state.auth.user); // Get user info from Redux store{{
+   const role = useSelector((state) => state.auth.role);
+
    useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-         setUser(user);
-      });
+      if (user) {
+         console.log(`user from redux store: ${user.email}`);
+         console.log(`user role: ${role}`);
+      } else {
+         console.log('No user found in Redux store'); }
+   }, [user, navigate]); // Add user and navigate as dependencies
   
-      return () => unsubscribe();
-   }, []);
+
+
   
    const handleFileUploadComplete = () => {
       setRefreshVideos((prev) => !prev); // Toggle to trigger re-render

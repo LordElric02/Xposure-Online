@@ -2,41 +2,52 @@ import React, { useState, useEffect } from 'react';
 import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import { Button, TextField, Typography, Container } from '@mui/material';
 import { auth } from './firebase';
-import { useAuth} from './AuthContext';
+import { useAuth } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
-import {getFirebaseUserRole} from './firebaseUserRole';
-
+import { getFirebaseUserRole } from './firebaseUserRole';
+import { useDispatch } from 'react-redux';
+import { setUser, clearUser } from '../reducers/authReducer';
 
 export const Auth = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [user, setUserState] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const provider = new GoogleAuthProvider();
   const { login } = useAuth();
+  const dispatch = useDispatch();
 
-
-
-  // Listen for authentication state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if(user != null)
-      {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
         const userId = user.uid;
-        console.log(`user uid:${userId}`);
-        getFirebaseUserRole(userId);
-      };
-      setUser(user);
+        const userRole = await getFirebaseUserRole(userId); // Assume this returns the user role
+        const userInfo = {
+          user: {
+            uid: userId,
+            displayName: user.displayName,
+            email: user.email,
+          },
+          role: userRole,
+        };
+        console.log(`user info: ${JSON.stringify(userInfo) }`);
+        dispatch(setUser(userInfo));
+        localStorage.setItem('user', JSON.stringify(userInfo)); // Persisting user info
+      } else {
+        dispatch(clearUser());
+        localStorage.removeItem('user'); // Clear on sign out
+      }
+      setUserState(user);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [dispatch]);
 
   const handleGoogleSignIn = async () => {
     try {
-        const userData = await signInWithPopup(auth, provider);
-        login(userData);
-        navigate('/');
+      const userData = await signInWithPopup(auth, provider);
+      login(userData);
+      navigate('/');
     } catch (error) {
       console.error("Error during Google sign-in:", error);
     }
@@ -98,5 +109,6 @@ export const Auth = () => {
         </div>
       )}
     </Container>
+ 
   );
 };

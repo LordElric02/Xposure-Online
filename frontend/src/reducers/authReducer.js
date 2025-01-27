@@ -1,20 +1,23 @@
-   // reducers/authReducer.js
-   import { SET_USER, CLEAR_USER } from '../actions/authActions';
+// reducers/authReducer.js
+import { createSlice } from '@reduxjs/toolkit';
 
-   const initialState = {
-     user: null,
-   };
+const authSlice = createSlice({
+  name: 'auth',
+  initialState: {
+    user: null,
+    role: null,
+  },
+  reducers: {
+    setUser(state, action) {
+      state.user = action.payload.user;
+      state.role = action.payload.role;
+    },
+    clearUser(state) {
+      state.user = null;
+      state.role = null;
+    },
+  },
+});
 
-   const authReducer = (state = initialState, action) => {
-     switch (action.type) {
-       case SET_USER:
-         return { ...state, user: action.payload };
-       case CLEAR_USER:
-         return { ...state, user: null };
-       default:
-         return state;
-     }
-   };
-
-   export default authReducer;
-   
+export const { setUser, clearUser } = authSlice.actions;
+export default authSlice.reducer;

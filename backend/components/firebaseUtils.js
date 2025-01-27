@@ -172,8 +172,8 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user,videoTitle,
     return getVideosByGroup(admin, group);
   }
 
-  export const groupList = async (admin, email) => {
-    return getVideoGroups(admin, email);
+  export const groupList = async (admin, email, role) => {
+    return getVideoGroups(admin, email, role);
   }
 
 

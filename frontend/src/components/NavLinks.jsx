@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AppBar, Toolbar, Button, styled } from '@mui/material';
-import { onAuthStateChanged } from 'firebase/auth';
 import { useState, useEffect } from 'react';
 import { auth } from './firebase';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux'; // Import useSelector
+
 
 // Styled AppBar to match RootContainer's background
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
@@ -18,17 +19,11 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
 }));
 
 const NavigationBar = () => {
-  const [user, setUser] = useState(null);
+  const user = useSelector((state) => state.auth.user); // Get user info from Redux store{{
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);

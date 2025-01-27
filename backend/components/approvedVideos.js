@@ -79,18 +79,18 @@ export const getVideosByGroup = async (admin, group) => {
         const videos = [];
         
         snapshot.forEach((childSnapshot) => {
-        const video = childSnapshot.val();
-        const createdAt = new Date(video.CreatedAt).getTime(); // Ensure CreatedAt is a timestamp
+            const video = childSnapshot.val();
+            const createdAt = new Date(video.CreatedAt).getTime(); // Ensure CreatedAt is a timestamp
 
-        if (video.approved === true && video.group === group) {
-            videos.push({
-            id: childSnapshot.key,
-            thumbnailUrl: video.thumbnailUrl,
-            videoUrl: video.videoUrl,
-            title: video.title,
-            thumbnail: video.thumbnail
-            });
-        }
+            if (video.approved === true && video.group === group) {
+                videos.push({
+                id: childSnapshot.key,
+                thumbnailUrl: video.thumbnailUrl,
+                videoUrl: video.videoUrl,
+                title: video.title,
+                thumbnail: video.thumbnail
+                });
+            }
         });
 
         return videos;
@@ -111,18 +111,18 @@ export const getVideosByGroupByUser = async (admin, email,group) => {
         const videos = [];
         
         snapshot.forEach((childSnapshot) => {
-        const video = childSnapshot.val();
-        const createdAt = new Date(video.CreatedAt).getTime(); // Ensure CreatedAt is a timestamp
+            const video = childSnapshot.val();
+            const createdAt = new Date(video.CreatedAt).getTime(); // Ensure CreatedAt is a timestamp
 
-        if (video.createdBy === email && video.group === group) {
-            videos.push({
-            id: childSnapshot.key,
-            thumbnailUrl: video.thumbnailUrl,
-            videoUrl: video.videoUrl,
-            title: video.title,
-            thumbnail: video.thumbnail
-            });
-        }
+            console.log(`video.tittle: ${video.title} video group: ${video.group} email: ${email} `);
+            if (video.createdBy === email && video.group === group) {
+                videos.push({
+                id: childSnapshot.key,
+                thumbnailUrl: video.thumbnailUrl,
+                videoUrl: video.videoUrl,
+                title: video.title
+                });
+            }
         });
 
         return videos;
@@ -132,7 +132,7 @@ export const getVideosByGroupByUser = async (admin, email,group) => {
 };
 
 
-export const getVideoGroups = async (admin, email) => {
+export const getVideoGroups = async (admin, email,role) => {
     const db = admin.database();  
     try {
         const groups = [];
@@ -166,6 +166,17 @@ export const getVideoGroups = async (admin, email) => {
         id: 6,
         group: 'Other'
         });
+
+        if(role === 'admin') {
+            groups.push({
+                id: 7,
+                group: 'Spotlight Videos'
+                });
+            groups.push({
+                id: 7,
+                group: 'Featured Videos'
+                });
+        };
 
         return groups;
     } catch (error) {

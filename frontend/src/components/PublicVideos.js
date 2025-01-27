@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import VideoPlayer from './PlayVideo'; // Import the new VideoPlayer component
 import VideoGroupGallery from './VideoGroupGallery'; // Import the new VideoGroupGallery component
-import Loader from './Loader';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setVideo, clearVideo } from '../reducers/videoPlayerReducer';
 
 const  PublicVideos = ({ refreshVideos }) => {
   const [videoGroups, setVideoGroups] = useState([]);
@@ -10,6 +11,8 @@ const  PublicVideos = ({ refreshVideos }) => {
   const [currentVideo, setCurrentVideo] = useState(null);
   const [videoTitle, setVideoTitle] = useState('');
   const videoPlayerRef = useRef(null); // Create a ref for the VideoPlayer
+  const navigate = useNavigate(); // Initialize navigate
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -55,23 +58,27 @@ const  PublicVideos = ({ refreshVideos }) => {
     fetchVideos();
   }, [refreshVideos]);
 
+  const handleNavigation = (path) => {
+    navigate(path); // Navigate to the specified route
+  };
+
   const handleThumbnailClick = (videoUrl, title) => {
     setCurrentVideo(videoUrl);
     setVideoTitle(title); // Update the title when thumbnail is clicked
-    if (videoPlayerRef.current) {
-      videoPlayerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Scroll to the VideoPlayer
-    }
+    const videoInfo = {
+      video: {
+        title: title,
+        url: videoUrl,
+      }
+    };
+    dispatch(setVideo({ videoUrl: videoUrl, videoName: title }));
+    handleNavigation(`/fullscreenvideo`);
+    // console.log('navigated');
   };
 
   return (
     <div style={{ ...styles.container, minHeight: '500px', minWidth: '800px' }}>
-      {currentVideo ? (
-        <div ref={videoPlayerRef}> {/* Attach the ref to a wrapper div */}
-          <VideoPlayer currentVideo={currentVideo} videoTitle={videoTitle} />
-        </div>
-      ) : (
-        <Loader /> // A loading component while fetching videos
-      )}
+     
       <div style={styles.videoGroups}>
         {videoGroups.map(group => (
           <VideoGroupGallery 

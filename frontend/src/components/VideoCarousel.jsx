@@ -12,7 +12,7 @@ const VideoCarousel = ({ group, videos, handleThumbnailClick }) => {
     slidesToShow: 1, // Adjust to show one large thumbnail
     slidesToScroll: 1,
     autoplay: true, // Enable autoplay
-    autoplaySpeed: 5000, // Set autoplay speed to 5 seconds
+    autoplaySpeed: 4000, // Set autoplay speed to 5 seconds
     responsive: [
       {
         breakpoint: 768,

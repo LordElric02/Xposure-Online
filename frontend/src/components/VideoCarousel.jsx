@@ -1,4 +1,3 @@
-// VideoGroupGallery.js
 import React from 'react';
 import Typography from '@mui/material/Typography'; // Import Typography from Material-UI
 import Slider from 'react-slick'; // Import the Slider component
@@ -12,6 +11,8 @@ const VideoCarousel = ({ group, videos, handleThumbnailClick }) => {
     speed: 500,
     slidesToShow: 1, // Adjust to show one large thumbnail
     slidesToScroll: 1,
+    autoplay: true, // Enable autoplay
+    autoplaySpeed: 5000, // Set autoplay speed to 5 seconds
     responsive: [
       {
         breakpoint: 768,
@@ -29,7 +30,6 @@ const VideoCarousel = ({ group, videos, handleThumbnailClick }) => {
       },
     ],
   };
-  
 
   return (
     <div style={styles.galleryContainer}>
@@ -72,6 +72,5 @@ const styles = {
     transition: 'transform 0.2s',
   },
 };
-
 
 export default VideoCarousel;

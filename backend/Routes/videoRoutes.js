@@ -110,10 +110,11 @@ router.post('/uservideosByGroup', async (req, res) => {
 
 router.post('/videoGroups', async (req, res) => {
   const email = req.query.email; 
+  const role = req.query.role;
   console.log(`email passed into api: ${email}`);
   // Set the Content-Type header to application/json
   res.setHeader('Content-Type', 'application/json');
-  const groups = await groupList(admin, email);
+  const groups = await groupList(admin, email,role);
   const jsongroups = JSON.stringify(groups);
 
   res.json(jsongroups);

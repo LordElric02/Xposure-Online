@@ -8,9 +8,10 @@ import { storage } from './firebase';
 import { v4 } from 'uuid';
 import { firebaseName } from '../Utils/fileNameExtractor';
 import  VideoGroupSelect  from './videoGroupsSelect';
+import { useSelector } from 'react-redux';
 
 
-export const FileUpload = ({ onUploadComplete, user }) => {
+export const FileUpload = ({ onUploadComplete }) => {
   const [showUpload, setShowUpload] = useState(false);
   const [file, setFile] = useState(null);
   const [thumbnail, setThumbnail] = useState(null);
@@ -22,12 +23,12 @@ export const FileUpload = ({ onUploadComplete, user }) => {
   const [snackbarSeverity, setSnackbarSeverity] = useState('info');
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  const usertoken = user.stsTokenManager.accessToken;
+  const user = useSelector((state) => state.auth.user); // Get user info from Redux store{{
+  const usertoken = useSelector((state) => state.auth.accessToken);
+  const userRole = useSelector((state) => state.auth.role); 
 
   useEffect(() => {
     const fetchVideoGroups = async () => {
-      const usertoken = user.stsTokenManager.accessToken;
       const requestBody = {
         usertoken: usertoken
       };
@@ -35,9 +36,9 @@ export const FileUpload = ({ onUploadComplete, user }) => {
       let videoGroupEndpoint = ``;
       const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'xposure-online.onrender.com');    
       if (!isRunningInsideBackend) {
-          videoGroupEndpoint = `${process.env.REACT_APP_API_URL}/videos/videoGroups?email=${user.email}`;
+          videoGroupEndpoint = `${process.env.REACT_APP_API_URL}/videos/videoGroups?email=${user.email}&role=${userRole}`;
       } else {
-          videoGroupEndpoint = `/api/videos/videoGroups?email=${user.email}`;
+          videoGroupEndpoint = `/api/videos/videoGroups?email=${user.email}&role=${userRole}`;
       }
       console.log(`videoGroupEndpoint: ${videoGroupEndpoint}`);
       try {

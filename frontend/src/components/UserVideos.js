@@ -3,20 +3,30 @@ import axios from 'axios';
 import VideoPlayer from './PlayVideo'; // Import the new VideoPlayer component
 import VideoGroupGallery from './VideoGroupGallery'; // Import the new VideoGroupGallery component
 import Loader from './Loader';
+import { useSelector } from 'react-redux';
 
-const  UserVideos = ({ refreshVideos, user }) => {
+
+const  UserVideos = ({ refreshVideos }) => {
   const [videoGroups, setVideoGroups] = useState([]);
   const [videosByGroup, setVideosByGroup] = useState({});
   const [currentVideo, setCurrentVideo] = useState(null);
   const [videoTitle, setVideoTitle] = useState('');
   const videoPlayerRef = useRef(null); // Create a ref for the VideoPlayer
+  
+  const usertoken =  useSelector((state) => state.auth.accessToken);
+  const userrole =  useSelector((state) => state.auth.role);
+  console.log(`role fetched from redux store: ${userrole}`);
+  const email =  useSelector((state) => state.auth.user.email);
+
 
   useEffect(() => {
     const fetchVideos = async () => {
-      const vgroups = ['Emmy Winners', 'Animations', 'Games', 'Community', 'Educational', 'Other'];
+      let vgroups = ['Emmy Winners', 'Animations', 'Games', 'Community', 'Educational', 'Other','Featured'];
+      if(userrole === 'admin') {
+        console.log('role is admin');
+        vgroups.push('Spotlight Selections');
+      }
       setVideoGroups(vgroups);
-
-      const usertoken = user.stsTokenManager.accessToken;
 
       try {
         const videoFetchPromises = vgroups.map(async (group) => {
@@ -24,10 +34,10 @@ const  UserVideos = ({ refreshVideos, user }) => {
           const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'xposure-online.onrender.com');    
         if (!isRunningInsideBackend) {
             // This code runs only in the frontend
-            thumbnailEndpoint = `${process.env.REACT_APP_API_URL}/videos/uservideosByGroup?email=${user.email}&group=${group}`;
+            thumbnailEndpoint = `${process.env.REACT_APP_API_URL}/videos/uservideosByGroup?email=${email}&group=${group}`;
         } else {
             // This code runs only in the backend
-            thumbnailEndpoint = `/api/videos/uservideosByGroup?email=${user.email}&group=${group}`;
+            thumbnailEndpoint = `/api/videos/uservideosByGroup?email=${email}&group=${group}`;
         }
           const requestBody = { usertoken: usertoken };
 
@@ -58,7 +68,7 @@ const  UserVideos = ({ refreshVideos, user }) => {
     };
 
     fetchVideos();
-  }, [refreshVideos, user]);
+  }, [refreshVideos, usertoken]);
 
   const handleThumbnailClick = (videoUrl, title) => {
     setCurrentVideo(videoUrl);

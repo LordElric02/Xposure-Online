@@ -29,8 +29,8 @@ export const Auth = () => {
             email: user.email,
           },
           role: userRole,
+          accessToken:  user.stsTokenManager.accessToken
         };
-        console.log(`user info: ${JSON.stringify(userInfo) }`);
         dispatch(setUser(userInfo));
         localStorage.setItem('user', JSON.stringify(userInfo)); // Persisting user info
       } else {

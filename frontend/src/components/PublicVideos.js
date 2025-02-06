@@ -69,12 +69,12 @@ const  PublicVideos = ({ refreshVideos }) => {
         });
 
         const allVideos = await Promise.all(videoFetchPromises);
-        console.log(`allVideos: ${JSON.stringify(allVideos)}`);
         const videosMap = vgroups.reduce((acc, group, index) => {
           acc[group] = allVideos[index];
           return acc;
         }, {});
 
+        console.log(`videos map:${JSON.stringify(videosMap)}`);
         setVideosByGroup(videosMap);
         console.log(`videosByGroup: ${JSON.stringify(videosMap)}`);
         if (allVideos.length > 0 && allVideos[0].length > 0) {

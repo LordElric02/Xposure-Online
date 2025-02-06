@@ -3,6 +3,7 @@ import { v4 } from 'uuid';
 import ffmpeg from 'fluent-ffmpeg';
 import { readFileSync } from "fs";
 import { createRecord } from "./firebaseDB.js";
+import path from 'path';
 import { getRecentApprovedVideos, getRecentUserVideos, getVideoGroups,getVideosByGroup, getVideosByGroupByUser } from "./approvedVideos.js";
 
 const outputThumbnailPath = `${process.cwd()}/video/thumbnail${v4()}.jpg`;
@@ -21,6 +22,13 @@ export const downloadFile = async (filePath, destination, fileUrl, user, videoTi
   return new Promise((resolve, reject) => {
     if (thumbnail) {
       // If thumbnail is not null, write the contents of thumbnail to outputThumbnailPath
+      
+      const dir = path.dirname(outputThumbnailPath);
+      console.log("directory being created: " + dir);
+      if (!fs.existsSync(dir)){
+          fs.mkdirSync(dir, { recursive: true });
+      }
+      
       const thumbnailStream = fs.createWriteStream(outputThumbnailPath);
       thumbnailStream.on('error', (err) => {
         console.error('Error writing thumbnail:', err);

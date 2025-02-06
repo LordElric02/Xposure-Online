@@ -50,6 +50,7 @@ export const FileUpload = ({ onUploadComplete }) => {
   const handleFileChange = (event) => setFile(event.target.files[0]);
   const handleThumbnailChange = (event) => setThumbnail(event.target.files[0]);
 
+
   const handleUpload = async () => {
     if (!file) {
       setSnackbarData({ open: true, message: 'Please select a file to upload.', severity: 'error' });
@@ -75,6 +76,7 @@ export const FileUpload = ({ onUploadComplete }) => {
   
     try {
       setUploading(true);
+      setSnackbarData({ open: true, message: 'Uploading video...', severity: 'info' }); // Show uploading Snackbar
   
       const snapshot = await uploadBytes(videosListRef, file);
       const url = await getDownloadURL(snapshot.ref);
@@ -90,7 +92,7 @@ export const FileUpload = ({ onUploadComplete }) => {
       reader.onload = async (event) => {
         const base64Thumbnail = btoa(new Uint8Array(event.target.result)
           .reduce((data, byte) => data + String.fromCharCode(byte), ''));
-  
+        
         const requestBody = { usertoken, thumbnail: base64Thumbnail };
   
         try {
@@ -109,8 +111,19 @@ export const FileUpload = ({ onUploadComplete }) => {
       setSnackbarData({ open: true, message: 'Error uploading file.', severity: 'error' });
     } finally {
       setUploading(false);
+      // Close the uploading Snackbar after the upload is complete
+      setSnackbarData({ open: false, message: '', severity: 'info' });
     }
   };
+  
+  // In the return statement of your component
+  {uploading && (
+    <SnackbarNotification 
+      open={uploading} 
+      message="Uploading video..." 
+      severity="info" 
+    />
+  )}
   
   return (
     <div style={{ position: 'relative' }}>

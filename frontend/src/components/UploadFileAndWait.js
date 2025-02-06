@@ -79,9 +79,16 @@ export const FileUpload = ({ onUploadComplete }) => {
       setSnackbarOpen(true);
       return;
     }
-
+  
+    if (!thumbnail) {
+      setSnackbarMessage('Please select a thumbnail to upload.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+  
     const videosListRef = ref(storage, `videos/uploadvideos_${v4()}`);
-
+  
     const uploadThumbnail = (thumbnailEndpoint, thumbnail) => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -89,9 +96,9 @@ export const FileUpload = ({ onUploadComplete }) => {
           const thumbnailData = event.target.result; // This contains the file content
           const base64Thumbnail = btoa(
             new Uint8Array(thumbnailData)
-                .reduce((data, byte) => data + String.fromCharCode(byte), '')
-        );
-          requestBody = {
+              .reduce((data, byte) => data + String.fromCharCode(byte), '')
+          );
+          const requestBody = {
             usertoken: usertoken,
             thumbnail: base64Thumbnail  
           };
@@ -110,55 +117,28 @@ export const FileUpload = ({ onUploadComplete }) => {
         reader.readAsArrayBuffer(thumbnail); // or readAsDataURL if you prefer
       });
     };
-
+  
     try {
       setUploading(true);
-
+  
       const snapshot = await uploadBytes(videosListRef, file);
       const url = await getDownloadURL(snapshot.ref);
       const fileName = firebaseName(url);
       const encodedUrl = encodeURIComponent(url);
-      var requestBody  = {};
       let thumbnailEndpoint = ``;
-      const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'xposure-online.onrender.com');    
+      const isRunningInsideBackend = 
+        ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || 
+        (window.location.hostname === 'xposure-online.onrender.com');    
+        
       if (!isRunningInsideBackend) {
-        // This code runs only in the frontend
         thumbnailEndpoint = `${process.env.REACT_APP_API_URL}/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
       } else {
-          // This code runs only in the backend
-          thumbnailEndpoint = `/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
+        thumbnailEndpoint = `/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
       }
-
-      if (!thumbnail) {
-          console.log(`no thumbnail`);
-          requestBody = {
-            usertoken: usertoken
-          };
-          try {
-            const response = await axios.post(thumbnailEndpoint, requestBody, {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
-    
-          } catch (err) {
-            console.log(err);
-          } 
-      } else {
-          console.log(`with thumbnail`);
-          try {
-            console.log('with thumbnail');
-            await uploadThumbnail(thumbnailEndpoint,thumbnail); // Await the thumbnail upload
-          } catch (error) {
-            setSnackbarMessage('Error uploading thumbnail.');
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
-            return; // Exit if there's an error
-          }
-         
-      }
-   ;
-
+  
+      console.log(`with thumbnail`);
+      await uploadThumbnail(thumbnailEndpoint, thumbnail); // Await the thumbnail upload
+  
       setSnackbarMessage('File uploaded successfully!');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
@@ -171,6 +151,7 @@ export const FileUpload = ({ onUploadComplete }) => {
       setUploading(false);
     }
   };
+  
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);

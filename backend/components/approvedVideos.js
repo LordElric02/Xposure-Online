@@ -167,7 +167,7 @@ export const getVideoGroups = async (admin, email,role) => {
         group: 'Other'
         });
 
-        if(role === 'admin') {
+        //if(role === 'admin') {
             groups.push({
                 id: 7,
                 group: 'Spotlight Videos'
@@ -176,7 +176,7 @@ export const getVideoGroups = async (admin, email,role) => {
                 id: 7,
                 group: 'Featured Videos'
                 });
-        };
+        //};
 
         return groups;
     } catch (error) {

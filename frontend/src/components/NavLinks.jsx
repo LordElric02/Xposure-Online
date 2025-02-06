@@ -20,6 +20,8 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
 
 const NavigationBar = () => {
   const user = useSelector((state) => state.auth.user); // Get user info from Redux store{{
+  const role = useSelector((state) => state.auth.role );
+  const isAdminUser  = role === "admin";
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const navigate = useNavigate();
@@ -48,12 +50,12 @@ const NavigationBar = () => {
         <Button color="inherit" component={Link} to="/">
           Home
         </Button>
-        {user && (
+        {user && isAdminUser && (
           <Button color="inherit" onClick={() => handleNavigation('/myvideos')}>
             My Videos
           </Button>
         )}
-        {user && (
+        {user && isAdminUser && (
           <Button color="inherit" component={Link} to="/myaccount">
             Profile
           </Button>

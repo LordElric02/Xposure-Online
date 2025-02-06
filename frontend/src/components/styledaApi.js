@@ -37,9 +37,10 @@ const UploadSection = styled(Grid)(({ theme }) => ({
 const VideoPlayerContainer = styled(Grid)(({ theme }) => ({
   borderRadius: 10,
   overflow: 'hidden',
-  backgroundColor: 'rgba(255, 255, 255, 0.1)', // Darker background
-  padding: theme.spacing(1),
-  border: '2px solid rgba(255, 255, 255, 0.3)',
+  backgroundColor: 'rgba(255, 255, 255, 0.05)', // Lighter background for a flatter look
+  padding: theme.spacing(0.5), // Reduced padding for a flatter appearance
+  border: 'none', // Remove border to eliminate the raised effect
 }));
+
 
 export { RootContainer, StyledPaper, Header, UploadSection, VideoPlayerContainer };

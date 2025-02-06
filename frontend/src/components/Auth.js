@@ -22,6 +22,7 @@ export const Auth = () => {
       if (user) {
         const userId = user.uid;
         const userRole = await getFirebaseUserRole(userId); // Assume this returns the user role
+        console.log(`the current user's role is:${userRole}`);
         const userInfo = {
           user: {
             uid: userId,

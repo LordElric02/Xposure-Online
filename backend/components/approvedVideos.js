@@ -114,7 +114,7 @@ export const getVideosByGroupByUser = async (admin, email,group) => {
             const video = childSnapshot.val();
             const createdAt = new Date(video.CreatedAt).getTime(); // Ensure CreatedAt is a timestamp
 
-            console.log(`video.tittle: ${video.title} video group: ${video.group} email: ${email} `);
+            // console.log(`video.tittle: ${video.title} video group: ${video.group} email: ${email} `);
             if (video.createdBy === email && video.group === group) {
                 videos.push({
                 id: childSnapshot.key,

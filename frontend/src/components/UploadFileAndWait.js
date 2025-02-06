@@ -1,122 +1,77 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Snackbar, Alert, Box,  Checkbox, FormControlLabel  } from '@mui/material';
-import { TextField } from '@mui/material';
-import Input from '@mui/material/Input';
+import { Button, Box, Input } from '@mui/material';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from './firebase';
 import { v4 } from 'uuid';
 import { firebaseName } from '../Utils/fileNameExtractor';
-import  VideoGroupSelect  from './videoGroupsSelect';
+import VideoGroupSelect from './videoGroupsSelect';
 import { useSelector } from 'react-redux';
-
+import SnackbarNotification from './SnackbarNotification';
 
 export const FileUpload = ({ onUploadComplete }) => {
-  const [showUpload, setShowUpload] = useState(false);
   const [file, setFile] = useState(null);
   const [thumbnail, setThumbnail] = useState(null);
-  const[videoTitle, setVideoTitle] = useState('');
-  const[videoGroup, setVideoGroup] = useState('');
-  const[videoGroups, setVideoGroups] = useState([]);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('info');
+  const [videoTitle, setVideoTitle] = useState('');
+  const [videoGroup, setVideoGroup] = useState('');
+  const [videoGroups, setVideoGroups] = useState([]);
+  const [snackbarData, setSnackbarData] = useState({ open: false, message: '', severity: 'info' });
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
-  const user = useSelector((state) => state.auth.user); // Get user info from Redux store{{
+
+  const user = useSelector((state) => state.auth.user);
   const usertoken = useSelector((state) => state.auth.accessToken);
-  const userRole = useSelector((state) => state.auth.role); 
+  const userRole = useSelector((state) => state.auth.role);
 
   useEffect(() => {
     const fetchVideoGroups = async () => {
-      const requestBody = {
-        usertoken: usertoken
-      };
+      if (!user) return;
+      const requestBody = { usertoken };
+      let videoGroupEndpoint = 
+        (window.location.port === '5000' && window.location.hostname === 'localhost') ||
+        window.location.hostname === 'xposure-online.onrender.com'
+          ? `/api/videos/videoGroups?email=${user.email}&role=${userRole}`
+          : `${process.env.REACT_APP_API_URL}/videos/videoGroups?email=${user.email}&role=${userRole}`;
 
-      let videoGroupEndpoint = ``;
-      const isRunningInsideBackend = ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || (window.location.hostname === 'xposure-online.onrender.com');    
-      if (!isRunningInsideBackend) {
-          videoGroupEndpoint = `${process.env.REACT_APP_API_URL}/videos/videoGroups?email=${user.email}&role=${userRole}`;
-      } else {
-          videoGroupEndpoint = `/api/videos/videoGroups?email=${user.email}&role=${userRole}`;
-      }
-      console.log(`videoGroupEndpoint: ${videoGroupEndpoint}`);
       try {
         const response = await axios.post(videoGroupEndpoint, requestBody, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         });
-        const tempArray = JSON.parse(response.data);
-        console.log(`response from videoGroups: ${tempArray.length}`);
-        setVideoGroups(tempArray); 
-        setLoading(false); // Set loading to false after fetching
+        setVideoGroups(JSON.parse(response.data));
+        setLoading(false);
       } catch (err) {
         console.error(err);
       }
     };
-  
-    // Call the async function
-    if (user) {
-      fetchVideoGroups();
-    }
-  }, [user]); // Add `user` as a dependency
-  
 
-  const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
-  };
+    fetchVideoGroups();
+  }, [user]);
 
-  const handleThumbnailChange = (event) => {
-    setThumbnail(event.target.files[0]);
-  };
-
+  const handleFileChange = (event) => setFile(event.target.files[0]);
+  const handleThumbnailChange = (event) => setThumbnail(event.target.files[0]);
 
   const handleUpload = async () => {
     if (!file) {
-      setSnackbarMessage('Please select a file to upload.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      setSnackbarData({ open: true, message: 'Please select a file to upload.', severity: 'error' });
       return;
     }
   
     if (!thumbnail) {
-      setSnackbarMessage('Please select a thumbnail to upload.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      setSnackbarData({ open: true, message: 'Please select a thumbnail to upload.', severity: 'error' });
+      return;
+    }
+  
+    if (!videoTitle) {
+      setSnackbarData({ open: true, message: 'Video title is required.', severity: 'error' });
+      return;
+    }
+  
+    if (!videoGroup) {
+      setSnackbarData({ open: true, message: 'Please select a video group.', severity: 'error' });
       return;
     }
   
     const videosListRef = ref(storage, `videos/uploadvideos_${v4()}`);
-  
-    const uploadThumbnail = (thumbnailEndpoint, thumbnail) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const thumbnailData = event.target.result; // This contains the file content
-          const base64Thumbnail = btoa(
-            new Uint8Array(thumbnailData)
-              .reduce((data, byte) => data + String.fromCharCode(byte), '')
-          );
-          const requestBody = {
-            usertoken: usertoken,
-            thumbnail: base64Thumbnail  
-          };
-          try {
-            const response = await axios.post(thumbnailEndpoint, JSON.stringify(requestBody), {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
-            resolve(response); // Resolve the promise on successful upload
-          } catch (err) {
-            console.log(err);
-            reject(err); // Reject the promise on error
-          }
-        };
-        reader.readAsArrayBuffer(thumbnail); // or readAsDataURL if you prefer
-      });
-    };
   
     try {
       setUploading(true);
@@ -125,124 +80,105 @@ export const FileUpload = ({ onUploadComplete }) => {
       const url = await getDownloadURL(snapshot.ref);
       const fileName = firebaseName(url);
       const encodedUrl = encodeURIComponent(url);
-      let thumbnailEndpoint = ``;
-      const isRunningInsideBackend = 
-        ((window.location.port === '5000') && (window.location.hostname === 'localhost')) || 
-        (window.location.hostname === 'xposure-online.onrender.com');    
-        
-      if (!isRunningInsideBackend) {
-        thumbnailEndpoint = `${process.env.REACT_APP_API_URL}/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
-      } else {
-        thumbnailEndpoint = `/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
-      }
+      let thumbnailEndpoint = 
+        (window.location.port === '5000' && window.location.hostname === 'localhost') ||
+        window.location.hostname === 'xposure-online.onrender.com'
+          ? `/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`
+          : `${process.env.REACT_APP_API_URL}/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
   
-      console.log(`with thumbnail`);
-      await uploadThumbnail(thumbnailEndpoint, thumbnail); // Await the thumbnail upload
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64Thumbnail = btoa(new Uint8Array(event.target.result)
+          .reduce((data, byte) => data + String.fromCharCode(byte), ''));
   
-      setSnackbarMessage('File uploaded successfully!');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
-      onUploadComplete();
+        const requestBody = { usertoken, thumbnail: base64Thumbnail };
+  
+        try {
+          await axios.post(thumbnailEndpoint, JSON.stringify(requestBody), {
+            headers: { 'Content-Type': 'application/json' },
+          });
+  
+          setSnackbarData({ open: true, message: 'File uploaded successfully!', severity: 'success' });
+          onUploadComplete();
+        } catch (err) {
+          setSnackbarData({ open: true, message: 'Error uploading thumbnail.', severity: 'error' });
+        }
+      };
+      reader.readAsArrayBuffer(thumbnail);
     } catch (error) {
-      setSnackbarMessage('Error uploading file.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      setSnackbarData({ open: true, message: 'Error uploading file.', severity: 'error' });
     } finally {
       setUploading(false);
     }
   };
   
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
   return (
     <div style={{ position: 'relative' }}>
-     <div>
-     <label htmlFor="vtitle" style={{ display: 'block', marginBottom: '4px' }}>
-  Video Title
-</label>
-<Input 
-  id="vtitle"
-  type="text" 
-  placeholder="Video Title" 
-  value={videoTitle} 
-  onChange={(e) => setVideoTitle(e.target.value)} 
-  style={{ 
-    marginBottom: '8px', 
-    width: '100%', 
-    backgroundColor: 'white', 
-    color: 'black' // Changed to black for visibility
-  }} 
-/>
-{loading ? (
-               <div>Loading...</div>
-           ) : (
-            <VideoGroupSelect videoGroup={videoGroup} setVideoGroup={setVideoGroup} videoGroups={videoGroups}   />
-           )}
-     
-  
-</div>
+      <div>
+      <label htmlFor="vtitle" style={{ display: 'block', marginBottom: '4px', color: 'white' }}>
+    Video Title
+  </label>
+        <Input
+          id="vtitle"
+          type="text"
+          placeholder="Video Title"
+          value={videoTitle}
+          onChange={(e) => setVideoTitle(e.target.value)}
+          style={{ marginBottom: '8px', width: '100%', backgroundColor: 'white', color: 'black' }}
+        />
+        {loading ? <div>Loading...</div> : (
+          <VideoGroupSelect videoGroup={videoGroup} setVideoGroup={setVideoGroup} videoGroups={videoGroups} />
+        )}
+      </div>
 
-      <Input type="file" onChange={handleFileChange} />
-      <Button variant="contained" onClick={handleUpload}>
-        Upload Video
-      </Button>
-      <Box>
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={showUpload}
-            onChange={() => setShowUpload(!showUpload)}
-          />
-        }
-        label="Uplod Thumbnail"
+      <Box mt={2}>
+        <label htmlFor="thumbnail-upload">
+          <Button variant="contained" component="span">
+            Choose Thumbnail
+          </Button>
+        </label>
+        <Input
+          id="thumbnail-upload"
+          type="file"
+          onChange={handleThumbnailChange}
+          required
+          style={{ display: 'none' }}
+        />
+      </Box>
+      <Box mt={2}>
+        <label htmlFor="video-upload">
+          <Button variant="contained" component="span">
+            Choose Video
+          </Button>
+        </label>
+        <Input
+          id="video-upload"
+          type="file"
+          onChange={handleFileChange}
+          required
+          style={{ display: 'none' }}
+        />
+      </Box>
+      <Box mt={2}>
+      <Button variant="contained" onClick={handleUpload}>Upload Video</Button>
+
+      </Box>
+
+
+      <SnackbarNotification 
+        open={snackbarData.open} 
+        message={snackbarData.message} 
+        severity={snackbarData.severity} 
+        onClose={() => setSnackbarData({ ...snackbarData, open: false })} 
       />
-      {showUpload && (
-        <Box mt={2}>
-          <Input type="file" onChange={handleThumbnailChange} />
-        </Box>
-      )}
-    </Box>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Change position to top center
-      >
-        <Alert 
-          onClose={handleSnackbarClose} 
-          severity={snackbarSeverity} 
-          sx={{ 
-            width: '100%', 
-            fontSize: '2rem', // Increase font size
-            padding: '16px', // Increase padding
-            textAlign: 'center', // Center text
-            position: 'absolute', // Use absolute positioning
-            top: '50%', // Center vertically
-            left: '50%', // Center horizontally
-            transform: 'translate(-50%, -50%)', // Adjust for centering
-            zIndex: 1300 // Make sure it's on top
-          }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={uploading}
-        anchorOrigin={{ vertical: 'center', horizontal: 'center' }}
-        autoHideDuration={null}
-      >
-        <Alert 
+      {uploading && (
+        <SnackbarNotification 
+          open={uploading} 
+          message="Uploading video..." 
           severity="info" 
-          sx={{ backgroundColor: 'red', color: 'white', width: 'auto', fontSize: '2rem', padding: '16px', textAlign: 'center' }}
-        >
-          Uploading video...
-        </Alert>
-      </Snackbar>
+        />
+      )}
     </div>
   );
 };

@@ -53,15 +53,15 @@ const VideoCarousel = ({ group, videos, handleThumbnailClick }) => {
           >
             <img src={video.thumbnailUrl} alt={video.title} style={styles.thumbnailImage} />
             <Typography variant="caption">{video.title}</Typography>
-            sfsdfsldfjxxxxxx
+            
           </div>
         ))}
       </Slider>
-      )};
+      )}
       
     </div>
-  );
-};
+  )
+}
 
 const styles = {
   galleryContainer: {

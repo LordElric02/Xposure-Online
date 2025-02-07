@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Box, Input } from '@mui/material';
+import { Button, Box, Input, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from './firebase';
 import { v4 } from 'uuid';
@@ -8,6 +8,7 @@ import { firebaseName } from '../Utils/fileNameExtractor';
 import VideoGroupSelect from './videoGroupsSelect';
 import { useSelector } from 'react-redux';
 import SnackbarNotification from './SnackbarNotification';
+
 
 export const FileUpload = ({ onUploadComplete }) => {
   const [file, setFile] = useState(null);
@@ -18,6 +19,8 @@ export const FileUpload = ({ onUploadComplete }) => {
   const [snackbarData, setSnackbarData] = useState({ open: false, message: '', severity: 'info' });
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [openDialog, setOpenDialog] = useState(false);
+
 
   const user = useSelector((state) => state.auth.user);
   const usertoken = useSelector((state) => state.auth.accessToken);
@@ -50,6 +53,29 @@ export const FileUpload = ({ onUploadComplete }) => {
   const handleFileChange = (event) => setFile(event.target.files[0]);
   const handleThumbnailChange = (event) => setThumbnail(event.target.files[0]);
 
+  const handleDeleteVideos = () => {
+    setOpenDialog(true); // Open the confirmation dialog
+  };
+  const deleteVideos = async () => {  
+    const requestBody = { usertoken };
+
+    setOpenDialog(true); // Open the confirmation dialog
+
+    let videoGroupEndpoint = 
+      (window.location.port === '5000' && window.location.hostname === 'localhost') ||
+      window.location.hostname === 'xposure-online.onrender.com'
+        ? `/api/videos/deleteAllVideos?email=${user.email}&role=${userRole}`
+        : `${process.env.REACT_APP_API_URL}/videos/deleteAllVideos?email=${user.email}&role=${userRole}`;
+  
+    try {
+      await axios.post(videoGroupEndpoint, requestBody, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      setSnackbarData({ open: true, message: 'Videos deleted successfully!', severity: 'success' });
+    } catch (err) {
+      console.error(err); 
+      }
+    };
 
   const handleUpload = async () => {
     if (!file) {
@@ -85,8 +111,8 @@ export const FileUpload = ({ onUploadComplete }) => {
       let thumbnailEndpoint = 
         (window.location.port === '5000' && window.location.hostname === 'localhost') ||
         window.location.hostname === 'xposure-online.onrender.com'
-          ? `/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`
-          : `${process.env.REACT_APP_API_URL}/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}`;
+          ? `/api/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}&userRole=${userRole}`
+          : `${process.env.REACT_APP_API_URL}/videos/GenerateThumbnail?filebaseName=${fileName}&fileUrl=${encodedUrl}&videotitle=${videoTitle}&videogroup=${videoGroup}&userRole=${userRole}`;
   
       const reader = new FileReader();
       reader.onload = async (event) => {
@@ -139,7 +165,7 @@ export const FileUpload = ({ onUploadComplete }) => {
           onChange={(e) => setVideoTitle(e.target.value)}
           style={{ marginBottom: '8px', width: '100%', backgroundColor: 'white', color: 'black' }}
         />
-        {loading ? <div>Loading...</div> : (
+        {loading ? <div>...</div> : (
           <VideoGroupSelect videoGroup={videoGroup} setVideoGroup={setVideoGroup} videoGroups={videoGroups} />
         )}
       </div>
@@ -161,7 +187,7 @@ export const FileUpload = ({ onUploadComplete }) => {
       <Box mt={2}>
         <label htmlFor="video-upload">
           <Button variant="contained" component="span">
-            Choose Video
+            Choose Video File
           </Button>
         </label>
         <Input
@@ -173,10 +199,30 @@ export const FileUpload = ({ onUploadComplete }) => {
         />
       </Box>
       <Box mt={2}>
-      <Button variant="contained" onClick={handleUpload}>Upload Video</Button>
-
+        <Button variant="contained" onClick={handleUpload}>Upload Video</Button>
+      </Box>
+      <Box mt={2}>
+        <Button variant="contained" onClick={handleDeleteVideos}>
+          Reset video database, this will delete all videos
+        </Button>
       </Box>
 
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete all videos? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={deleteVideos} color="primary">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <SnackbarNotification 
         open={snackbarData.open} 

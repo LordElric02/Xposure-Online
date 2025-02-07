@@ -9,13 +9,14 @@ const VideoGroupGallery = ({ group, videos, handleThumbnailClick }) => {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3,
+    slidesToShow: videos.length === 1 ? 1 : 3,
+    infinite: false,
     slidesToScroll: 1,
     responsive: [
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: videos.length === 1 ? 1 : 2,
           slidesToScroll: 1,
         },
       },
@@ -32,17 +33,9 @@ const VideoGroupGallery = ({ group, videos, handleThumbnailClick }) => {
   return (
     <div style={styles.galleryContainer}>
       <Typography variant="h6" gutterBottom>{group}</Typography>
-      {videos.length === 1 ? (
-        <div 
-          onClick={() => handleThumbnailClick(videos[0].videoUrl, videos[0].title)}
-          style={styles.thumbnail}
-        >
-          <img src={videos[0].thumbnailUrl} alt={videos[0].title} style={styles.thumbnailImage} />
-          <Typography variant="caption">{videos[0].title}</Typography>
-        </div>
-      ) : (
+     
         <Slider {...settings} style={styles.thumbnailSlider}>
-          {videos.map(video => (
+          {videos.length !=1 && videos.map(video => (
             <div 
               key={video.id}
               onClick={() => handleThumbnailClick(video.videoUrl, video.title)}
@@ -53,7 +46,6 @@ const VideoGroupGallery = ({ group, videos, handleThumbnailClick }) => {
             </div>
           ))}
         </Slider>
-      )}
     </div>
   );
 };

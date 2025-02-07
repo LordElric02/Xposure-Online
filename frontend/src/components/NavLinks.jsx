@@ -50,17 +50,42 @@ const NavigationBar = () => {
         <Button color="inherit" component={Link} to="/">
           Home
         </Button>
+        {user  && (
+          <Button color="inherit" onClick={() => handleNavigation('/animations')}>
+           Animations
+          </Button>
+        )}
+         {user  && (
+          <Button color="inherit" onClick={() => handleNavigation('/moviesandtv')}>
+           Movies  & TV
+          </Button>
+        )}
+         {user  && (
+          <Button color="inherit" onClick={() => handleNavigation('/emmywinners')}>
+           SX Emmy Winners
+          </Button>
+        )}
+          {user  && (
+          <Button color="inherit" onClick={() => handleNavigation('/emmynominated')}>
+           16X Emmy Nominated
+          </Button>
+        )}
+          {user  && (
+          <Button color="inherit" onClick={() => handleNavigation('/musicvideos')}>
+           Music Videos
+          </Button>
+        )}
+          {user  && (
+          <Button color="inherit" onClick={() => handleNavigation('/About')}>
+           Music Videos
+          </Button>
+        )}
         {user && isAdminUser && (
           <Button color="inherit" onClick={() => handleNavigation('/myvideos')}>
             My Videos
           </Button>
         )}
-        {user && isAdminUser && (
-          <Button color="inherit" component={Link} to="/myaccount">
-            Profile
-          </Button>
-        )}
-        {user ? (
+           {user ? (
           <Button color="inherit" component={Link} to="/login">
             Logout
           </Button>

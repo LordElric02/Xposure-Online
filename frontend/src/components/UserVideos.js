@@ -21,11 +21,8 @@ const  UserVideos = ({ refreshVideos }) => {
 
   useEffect(() => {
     const fetchVideos = async () => {
-      let vgroups = ['Emmy Winners', 'Animations', 'Games', 'Community', 'Educational', 'Other','Featured'];
-      if(userrole === 'admin') {
-        console.log('role is admin');
-        vgroups.push('Spotlight Selections');
-      }
+      let vgroups = ['Emmy Winners', 'Animations', 'Games', 'Community', 'Educational', 'Other'];
+     
       setVideoGroups(vgroups);
 
       try {

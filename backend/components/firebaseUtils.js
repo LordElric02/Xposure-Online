@@ -12,7 +12,7 @@ let outputVideoFile = '';
 
 
 // Function to download file from Firebase Storage
-export const downloadFile = async (filePath, destination, fileUrl, user, videoTitle, videoGroup, thumbnail, admin) => {
+export const downloadFile = async (filePath, destination, fileUrl, user, videoTitle, videoGroup, thumbnail, admin,userRole) => {
   const bucket = admin.storage().bucket();
   const file = bucket.file(filePath);
   console.log(`A`);
@@ -48,7 +48,7 @@ export const downloadFile = async (filePath, destination, fileUrl, user, videoTi
       thumbnailStream.on('finish', async () => {
         try {
           // Call uploadThumbnail after the thumbnail stream ends
-          await uploadThumbnail(outputThumbnailPath, fileUrl, user, videoTitle, videoGroup, admin);
+          await uploadThumbnail(outputThumbnailPath, fileUrl, user, videoTitle, videoGroup, admin,userRole);
           resolve(); // Resolve the promise after uploading the thumbnail
         } catch (error) {
           reject(error); // Reject if there's an error in uploading the thumbnail
@@ -115,7 +115,7 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user,videoTitle,
   };
 }
 
-  export const uploadThumbnail = async (thumbnailPath, fileUrl, user,videoTitle,videoGroup, admin) => {
+  export const uploadThumbnail = async (thumbnailPath, fileUrl, user,videoTitle,videoGroup, admin,userRole) => {
     console.log(`C`);
     console.log(`videoTitle: ${videoTitle}`);
     console.log(`videoGroup: ${videoGroup}`);
@@ -130,10 +130,10 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user,videoTitle,
 
     });
     console.log(`preparing to save to database for user ${user}`);
-    await saveToDatabase(fileUrl, generateThumbnailUrl(thumbnailSuffix), user,videoTitle,videoGroup, admin);
+    await saveToDatabase(fileUrl, generateThumbnailUrl(thumbnailSuffix), user,videoTitle,videoGroup, admin,userRole);
 
     // Delete the temporary files
-     fs.unlinkSync(outputThumbnailPath);   
+     fs.unlinkSync(outputThumbnailPath);  
   };
 
   const generateThumbnailUrl =  (fileUrl) => {
@@ -142,8 +142,9 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user,videoTitle,
     return thumbnailUrl;
   }
 
-  const saveToDatabase = async (videoUrl, thumbnail, user, videoTitle,videoGroup, admin) => {
+  const saveToDatabase = async (videoUrl, thumbnail, user, videoTitle,videoGroup, admin,userRole) => {
     const videoPath = `videos/${v4()}`; // Define the path in the database
+    const approved =userRole === 'admin' ? true : false;
     console.log(`D`);
     console.log(`videoTitle: ${videoTitle}`);
     console.log(`videoGroup: ${videoGroup}`);
@@ -158,11 +159,28 @@ export const createThumbnail = async (outputVideoPath, fileUrl, user,videoTitle,
       updatedAt: Date.now(),
       createdBy:user.email,
       group: videoGroup,
-      approved: false  
+      approved: approved  
     };    
     console.log(`preparing to save tocreate record for user ${user}`);
     await createRecord(admin, videoPath, videoData);
   }
+
+  export const deleteAllVideos = async (admin) => {
+    const videosPath = 'videos'; // Path to the videos collection
+  
+    try {
+      // Get a reference to the database
+      const db = admin.database();
+      const ref = db.ref(videosPath);
+      
+      // Remove the entire collection
+      await ref.remove();
+      console.log('All videos deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting all videos:', error);
+    }
+  };
+  
 
   export const recordecentApprovedVideos = async (admin) => {
         return getRecentApprovedVideos(admin);

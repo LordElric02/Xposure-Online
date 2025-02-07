@@ -14,6 +14,10 @@ import Animations from './components/Animations';
 import PrintingServices from './components/PrintingServices';
 import HomeVideos from './components/HomeVideos';
 import FullScreenVideo from './components/FullScreenVideo';
+import MoviesAndTv  from './components/MoviesAndTv';
+import EmmyWinners from './components/EmmyWinners';
+import EmmyNominated from './components/EmmyNominated';
+import MusicVideos from './components/MusicVideos';
 
 
 
@@ -27,6 +31,10 @@ const MyRoutes = () => {
         <Route path="/myvideos" element={<MyVideos /> } /> 
         <Route path="/myaccount" element={<MyAccount  /> } /> 
         <Route path="/animations" element={<Animations  /> } /> 
+        <Route path="/moviesandtv" element={<MoviesAndTv  /> } /> 
+        <Route path="/emmywinners" element={<EmmyWinners  /> } /> 
+        <Route path="/emmynominated" element={<EmmyNominated  /> } /> 
+        <Route path="/musicvideos" element={<MusicVideos  /> } /> 
         <Route path="/login" element={<Auth  /> } /> 
         <Route path="/printingservices" element={<PrintingServices  /> } /> 
         <Route path="/fullscreenvideo" element={<FullScreenVideo />} />

@@ -115,9 +115,8 @@ const  PublicVideos = ({ refreshVideos }) => {
       {videosByGroup['Spotlight Videos'] && (
           <VideoCarousel group="Spotlight Videos" videos={videosByGroup['Spotlight Videos']} handleThumbnailClick={handleThumbnailClick} />
         )
-        }
-        <br />
-        {videoGroups
+      }
+         {videoGroups
         .filter(group => group !== 'Spotlight Videos' && group !== 'Featured Videos') // Exclude specified groups
         .map(group => (
           <VideoGroupGallery 

@@ -2,7 +2,7 @@ import Router from 'express';
 import multer from 'multer';
 import { v4 } from 'uuid';
 import admin from 'firebase-admin';
-import { downloadFile, groupList, recordecentApprovedVideos, groupVideos, userVideos, groupVideosByUser } from '../components/firebaseUtils.js';
+import { downloadFile, groupList, recordecentApprovedVideos, groupVideos, userVideos, groupVideosByUser, deleteAllVideos } from '../components/firebaseUtils.js';
 import verifyToken from '../middlewares/auth.js';
 
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
@@ -27,7 +27,6 @@ router.get('/', async (req, res) => {
 
 router.post('/videosByGroup', async (req, res) => {
   const group = req.query.group; 
-  console.log(`group passed into api: ${group}`);
   // Set the Content-Type header to application/json
   res.setHeader('Content-Type', 'application/json');
   const videos = await groupVideos(admin,group);
@@ -55,13 +54,14 @@ router.post('/GenerateThumbnail', upload.single('file'), async (req, res) => {
     const videoTitle = req.query.videotitle;
     const videoGroup = req.query.videogroup;
     const { thumbnail } = req.body;
+    const userRole = req.query.userRole;
     const buffer = thumbnail ? Buffer.from(thumbnail, 'base64') : null;
 
     const outputVideoPath = `${process.cwd()}/Video/firebasevideo${v4()}.mp4`;
 
 
     // Download video
-    await downloadFile(filePath, outputVideoPath, fileUrl, req.user,videoTitle, videoGroup, buffer, admin); // Wait for the downloadFile to complete
+    await downloadFile(filePath, outputVideoPath, fileUrl, req.user,videoTitle, videoGroup, buffer, admin,userRole); // Wait for the downloadFile to complete
 
     // Here you could add additional processing for generating the thumbnail if needed
 
@@ -79,7 +79,6 @@ router.post('/GenerateThumbnail', upload.single('file'), async (req, res) => {
 
 router.post('/uservideos', async (req, res) => {
   const email = req.query.email; 
-  console.log(`email passed into api: ${email}`);
   // Set the Content-Type header to application/json
   res.setHeader('Content-Type', 'application/json');
   const videos = await userVideos(admin, email);
@@ -91,8 +90,6 @@ router.post('/uservideos', async (req, res) => {
 router.post('/uservideosByGroup', async (req, res) => {
   const email = req.query.email; 
   const group = req.query.group; 
-  console.log(`email passed into api: ${email}`);
-  console.log(`group passed into api: ${group}`);
   // Set the Content-Type header to application/json
   res.setHeader('Content-Type', 'application/json');
   const videos = await groupVideosByUser(admin,email,group);
@@ -101,10 +98,20 @@ router.post('/uservideosByGroup', async (req, res) => {
   res.json(jsonGroupVideos);
 });
 
+router.post('/deleteAllVideos', async (req, res) => {
+  const email = req.query.email; 
+  // Set the Content-Type header to application/json
+  res.setHeader('Content-Type', 'application/json');
+  const videos = await deleteAllVideos(admin);
+  const jsonGroupVideos = JSON.stringify(videos);
+
+  res.json(jsonGroupVideos);
+});
+
+
 router.post('/videoGroups', async (req, res) => {
   const email = req.query.email; 
   const role = req.query.role;
-  console.log(`email passed into api: ${email}`);
   // Set the Content-Type header to application/json
   res.setHeader('Content-Type', 'application/json');
   const groups = await groupList(admin, email,role);

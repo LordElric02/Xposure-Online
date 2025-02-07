@@ -1,16 +1,15 @@
-// VideoGroupGallery.js
 import React from 'react';
-import Typography from '@mui/material/Typography'; // Import Typography from Material-UI
-import Slider from 'react-slick'; // Import the Slider component
-import 'slick-carousel/slick/slick.css'; // Import the slick styles
-import 'slick-carousel/slick/slick-theme.css'; // Import the slick theme styles
+import Typography from '@mui/material/Typography';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 const VideoGroupGallery = ({ group, videos, handleThumbnailClick }) => {
   const settings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3, // Number of thumbnails to show at once
+    slidesToShow: 3,
     slidesToScroll: 1,
     responsive: [
       {
@@ -33,18 +32,28 @@ const VideoGroupGallery = ({ group, videos, handleThumbnailClick }) => {
   return (
     <div style={styles.galleryContainer}>
       <Typography variant="h6" gutterBottom>{group}</Typography>
-      <Slider {...settings} style={styles.thumbnailSlider}>
-        {videos.map(video => (
-          <div 
-            key={video.id}
-            onClick={() => handleThumbnailClick(video.videoUrl, video.title)}
-            style={styles.thumbnail}
-          >
-            <img src={video.thumbnailUrl} alt={video.title} style={styles.thumbnailImage} />
-            <Typography variant="caption">{video.title}</Typography>
-          </div>
-        ))}
-      </Slider>
+      {videos.length === 1 ? (
+        <div 
+          onClick={() => handleThumbnailClick(videos[0].videoUrl, videos[0].title)}
+          style={styles.thumbnail}
+        >
+          <img src={videos[0].thumbnailUrl} alt={videos[0].title} style={styles.thumbnailImage} />
+          <Typography variant="caption">{videos[0].title}</Typography>
+        </div>
+      ) : (
+        <Slider {...settings} style={styles.thumbnailSlider}>
+          {videos.map(video => (
+            <div 
+              key={video.id}
+              onClick={() => handleThumbnailClick(video.videoUrl, video.title)}
+              style={styles.thumbnail}
+            >
+              <img src={video.thumbnailUrl} alt={video.title} style={styles.thumbnailImage} />
+              <Typography variant="caption">{video.title}</Typography>
+            </div>
+          ))}
+        </Slider>
+      )}
     </div>
   );
 };

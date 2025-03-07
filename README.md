@@ -1,2 +1,2 @@
 # Xposure-Online
-Prototype for Xposure Inc.
+Video Sharing Application for Xposure Inc.
